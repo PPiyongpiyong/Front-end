@@ -7,7 +7,7 @@ const Login = React.lazy(() => import('./pages/Login'));
 const Chat = React.lazy(() => import('./pages/Chat'));
 const Manual = React.lazy(() => import('./pages/Manual'));
 const ManualDetail = React.lazy(() => import('./pages/ManualDetail'));
-const Map = React.lazy(() => import('./pages/Map'));
+const MapPage = React.lazy(() => import('./pages/MapPage'));
 const Mypage = React.lazy(() => import('./pages/Mypage'));
 const Signup = React.lazy(() => import('./pages/Signup'));
 const Youtube = React.lazy(() => import('./pages/Youtube'));
@@ -18,7 +18,7 @@ function App() {
       <AnimatePresence>
         <Suspense fallback={<Loading />}>
           <Routes>
-            <Route path="/" element={<Map />} />
+            <Route path="/" element={<MapPage />} />
             <Route path="/Login" element={<Login />} />
             <Route path="/Chat" element={<Chat />} />
             <Route path="/Manual" element={<Manual />} />

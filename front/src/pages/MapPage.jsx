@@ -1,7 +1,7 @@
 import { Container, BodyWrapper, Body } from '../styles/Global';
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import logo from "../assets/logo.svg";
 import bar from "../assets/bottom_bar/bar.svg";
@@ -10,8 +10,10 @@ import manual_icon from "../assets/bottom_bar/manual_icon.svg";
 import map_icon from "../assets/bottom_bar/map_icon.svg";
 import youtube_icon from "../assets/bottom_bar/youtube_icon.svg";
 import my_icon from "../assets/bottom_bar/my_icon.svg";
+import { Map, MapMarker } from "react-kakao-maps-sdk";
 
-function Map() {
+
+function MapPage(props) {
     const navigate = useNavigate();
 
     const goMy = () => {
@@ -30,14 +32,20 @@ function Map() {
         navigate("/Youtube");
     };
 
+
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <Container>
                 <BodyWrapper>
+                    <Header>
+                        <img className="logo" src={logo} alt="logo" />
+                    </Header>
                     <Body>
-                        <Header>
-                            <img className="logo" src={logo} alt="logo" />
-                        </Header>
+                    <Map
+                      center={{ lat: 33.450701, lng: 126.570667 }}
+                      style={{ width: '22rem', height: '17rem', marginTop: "5.5rem" }}
+                      level={3}
+                    /> 
                     </Body>
                 </BodyWrapper>
                 <Footer>
@@ -91,4 +99,4 @@ const StyledIcon = styled.img`
 `;
 
 
-export default Map;
+export default MapPage;
