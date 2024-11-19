@@ -34,10 +34,10 @@ function Manual() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <Container>
                 <BodyWrapper>
+                    <Header>
+                        <img className="logo" src={logo} alt="logo" />
+                    </Header>
                     <Body>
-                        <Header>
-                            <img className="logo" src={logo} alt="logo" />
-                        </Header>
                     </Body>
                 </BodyWrapper>
                 <Footer>
