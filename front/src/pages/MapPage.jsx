@@ -10,6 +10,7 @@ import manual_icon from "../assets/bottom_bar/manual_icon.svg";
 import map_icon from "../assets/bottom_bar/map_icon.svg";
 import youtube_icon from "../assets/bottom_bar/youtube_icon.svg";
 import my_icon from "../assets/bottom_bar/my_icon.svg";
+import chat from "../assets/chat_btn.svg";
 import markerImage from "../assets/map/marker.svg";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
 
@@ -90,6 +91,7 @@ function MapPage() {
     const goManual = () => navigate("/Manual");
     const goMap = () => navigate("/");
     const goYoutube = () => navigate("/Youtube");
+    const goChat = () => navigate("/Chat");
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -124,9 +126,42 @@ function MapPage() {
                                 )}
                             </Map>
                         </StyledMapContainer>
+                        <MyAddress>
+                            <p className='title'>현위치</p>
+                            <p className='content'>{state.address}</p>
+                        </MyAddress>
+                        <HospitalBoxes>
+                            <HospitalBox>
+                                <p className='hospital_name'>구리 한양대병원</p>
+                                <p className='hospital_address'>경기도 구리시 경춘로 153</p>
+                            </HospitalBox>
+                            <HospitalBox>
+                                <p className='hospital_name'>구리 한양대병원</p>
+                                <p className='hospital_address'>경기도 구리시 경춘로 153</p>
+                            </HospitalBox>
+                            <HospitalBox>
+                                <p className='hospital_name'>구리 한양대병원</p>
+                                <p className='hospital_address'>경기도 구리시 경춘로 153</p>
+                            </HospitalBox>
+                            <HospitalBox>
+                                <p className='hospital_name'>구리 한양대병원</p>
+                                <p className='hospital_address'>경기도 구리시 경춘로 153</p>
+                            </HospitalBox>
+                            <HospitalBox>
+                                <p className='hospital_name'>구리 한양대병원</p>
+                                <p className='hospital_address'>경기도 구리시 경춘로 153</p>
+                            </HospitalBox>
+                            <HospitalBox>
+                                <p className='hospital_name'>구리 한양대병원</p>
+                                <p className='hospital_address'>경기도 구리시 경춘로 153</p>
+                            </HospitalBox>
+                        </HospitalBoxes>
                     </Body>
                 </BodyWrapper>
                 <Footer>
+                    <Chat onClick={goChat}>
+                        <img className="chat" src={chat} alt="chat_btn" />
+                    </Chat>
                     <Base>
                         <img src={bar} width="100%" alt="footer_bar" />
                     </Base>
@@ -178,5 +213,68 @@ const StyledMapContainer = styled.div`
     border-radius: 8px; 
     overflow: hidden; 
 `;
+
+const MyAddress = styled.div`
+    position: relative;
+    margin: auto;
+    top: 1rem;
+    width: 21rem;
+    height: 4.5rem;
+    border: 1px solid #FF4F4D;
+    background-color: #fff6f6;
+    border-radius: 10px;
+
+    .title {
+        margin-left: -16rem;
+        margin-top: 0.7rem;
+        color: #FF4F4D;
+        font-weight: bold;
+    }
+    .content {
+        text-align: left;
+        margin-top: -0.7rem;
+        margin-left: 1rem;
+        font-size: 14px;
+    }
+`;
+
+const HospitalBoxes = styled.div`
+    margin-top: 2rem;
+    margin-bottom: 5.5rem;
+    margin-left: 0.44rem;
+`;
+
+const HospitalBox = styled.div`
+  margin-bottom: 1.1rem;
+  position: relative;
+  width: 21rem;
+  height: 4.5rem;
+  border: 1px solid #FF4F4D;
+  border-radius: 10px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+
+  .hospital_name {
+    text-align: left;
+    margin-left: 1rem;
+    margin-top: 0.8rem;
+    color: #FF4F4D;
+    font-weight: bold;
+    font-size: 17.5px;
+  }
+
+  .hospital_address {
+    text-align: left;
+    font-size: 14px;
+    margin-top: -0.7rem;
+    margin-left: 1rem;
+  }
+`;
+
+const Chat = styled.div`
+    position: relative;
+    bottom: 1.5rem;
+    left: 9.2rem;
+`;
+
 
 export default MapPage;
