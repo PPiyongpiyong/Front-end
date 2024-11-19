@@ -13,39 +13,57 @@ import my_icon from "../assets/bottom_bar/my_icon.svg";
 import markerImage from "../assets/map/marker.svg";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
 
-function MapPage(props) {
+function MapPage() {
     const navigate = useNavigate();
     const [state, setState] = useState({
         center: {
-            // 초기 위치는 아산병원으로 잡음
             lat: 37.524877465547, 
             lng: 127.10788678005,
         },
+        address: "", // 주소명을 저장할 상태
         errMsg: null,
         isLoading: true,
     });
 
-    // 마커 클릭 시 위치 메시지가 보이도록 하기 위해 선언
     const [showMarkerInfo, setShowMarkerInfo] = useState(false); 
 
-    // 마커 클릭 시 상태 전환
-    const toggleMarkerInfo = () => {
-        setShowMarkerInfo((prev) => !prev);  
+    // Geocoder를 통해 위도, 경도를 주소로 변경하기
+    const getAddress = (lat, lng) => {
+        const geocoder = new window.kakao.maps.services.Geocoder();
+    
+        geocoder.coord2Address(lng, lat, (result, status) => {
+            if (status === window.kakao.maps.services.Status.OK) {
+                const addressName = result[0]?.road_address?.address_name || result[0]?.address?.address_name;
+                setState((prev) => ({
+                    ...prev,
+                    address: addressName || "주소 정보를 가져올 수 없어요.",
+                }));
+            } else {
+                setState((prev) => ({
+                    ...prev,
+                    address: "주소 정보를 가져올 수 없어요.",
+                }));
+            }
+        });
     };
+    
 
-    // geolocation 사용하여 본인 위치 위도, 경도로 불러오기 
+    // 현재 위치를 위도, 경도로 받아온 후, getAddress 함수를 호출하여 위도, 경도를 주소로 변환함
     useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
+                    const { latitude, longitude } = position.coords;
                     setState((prev) => ({
                         ...prev,
                         center: {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude,
+                            lat: latitude,
+                            lng: longitude,
                         },
                         isLoading: false,
                     }));
+                    // 위도, 경도를 주소 변환하는 함수 호출
+                    getAddress(latitude, longitude); 
                 },
                 (err) => {
                     setState((prev) => ({
@@ -64,21 +82,14 @@ function MapPage(props) {
         }
     }, []);
 
-    const goMy = () => {
-        navigate("/Mypage");
+    const toggleMarkerInfo = () => {
+        setShowMarkerInfo((prev) => !prev);  
     };
 
-    const goManual = () => {
-        navigate("/Manual");
-    };
-
-    const goMap = () => {
-        navigate("/");
-    };
-
-    const goYoutube = () => {
-        navigate("/Youtube");
-    };
+    const goMy = () => navigate("/Mypage");
+    const goManual = () => navigate("/Manual");
+    const goMap = () => navigate("/");
+    const goYoutube = () => navigate("/Youtube");
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -98,26 +109,15 @@ function MapPage(props) {
                                     <MapMarker
                                         position={state.center}
                                         image={{
-                                            // 마커로 사용하는 이미지 불러오기
                                             src: markerImage, 
-                                            size: {
-                                                width: 30,
-                                                height: 30, 
-                                            },
-                                            options: {
-                                                offset: {
-                                                    x: 20,
-                                                    y: 40, 
-                                                },
-                                            },
+                                            size: { width: 30, height: 30 },
+                                            options: { offset: { x: 20, y: 40 } },
                                         }}
-                                        // 클릭하면 상태가 전환되도록 함수 불러오기
                                         onClick={toggleMarkerInfo}  
                                     >
-                                        {/* 상태에 따라 주소 메시지 창이 보이도록 함. false: 안 보임, true: 보임*/}
                                         {showMarkerInfo && (
                                             <div style={{ padding: "5px", color: "#000", whiteSpace: "nowrap" }}>
-                                                {state.errMsg ? state.errMsg : `${state.center.lat}, ${state.center.lng}`}
+                                                {state.errMsg || state.address}
                                             </div>
                                         )}
                                     </MapMarker>
@@ -128,11 +128,7 @@ function MapPage(props) {
                 </BodyWrapper>
                 <Footer>
                     <Base>
-                        <img
-                            src={bar}
-                            width="100%"
-                            alt="footer_bar"
-                        />
+                        <img src={bar} width="100%" alt="footer_bar" />
                     </Base>
                     <StyledIcon src={map_icon} alt="map_icon" style={{ marginLeft: "-10rem" }} onClick={goMap} />
                     <StyledIcon src={manual_icon} alt="manual_icon" style={{ marginLeft: "-6rem" }} onClick={goManual} />
