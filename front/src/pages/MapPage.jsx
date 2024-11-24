@@ -1,7 +1,7 @@
 import { Container, BodyWrapper, Body } from '../styles/Global';
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import logo from "../assets/logo.svg";
 import bar from "../assets/bottom_bar/bar.svg";
@@ -171,12 +171,55 @@ function MapPage() {
                             {openModal !== null && selectedHospital && (
                                 <Modal isOpen={openModal !== null} onClose={closeModal}>
                                     <div>
-                                        <h3>{selectedHospital.title}</h3>
-                                        <p>전화번호: {selectedHospital.tel}</p>
-                                        <button onClick={closeModal}>닫기</button>
+                                        {/* 전화 링크 수정 */}
+                                        <a 
+                                            href={`tel:${selectedHospital.tel}`} 
+                                            style={{
+                                                display: 'block',
+                                                textDecoration: 'none',
+                                            }}
+                                        >
+                                            <div 
+                                                style={{ 
+                                                    width: '20rem', 
+                                                    height: '4rem', 
+                                                    background: '#474747', 
+                                                    borderRadius: '10px', 
+                                                    color: '#6985FF', 
+                                                    fontSize: '23px', 
+                                                    display: 'flex',             
+                                                    justifyContent: 'center',    
+                                                    alignItems: 'center',        
+                                                    textAlign: 'center',
+                                                    marginBottom: '1rem',
+                                                }}
+                                            >
+                                                전화 {selectedHospital.tel}
+                                            </div>
+                                        </a>
+                                        
+                                        <div 
+                                            style={{ 
+                                                width: '20rem', 
+                                                height: '4rem', 
+                                                background: '#474747', 
+                                                borderRadius: '10px', 
+                                                color: '#FF5B59', 
+                                                fontSize: '23px', 
+                                                fontWeight: 'bold',
+                                                display: 'flex',             
+                                                justifyContent: 'center',    
+                                                alignItems: 'center',        
+                                                textAlign: 'center'          
+                                            }} 
+                                            onClick={closeModal}
+                                        >
+                                            취소
+                                        </div>
                                     </div>
                                 </Modal>
                             )}
+
                         </StyledMapContainer>
                         {/* 본인의 현재 위치 박스 */}
                         <MyAddress>
