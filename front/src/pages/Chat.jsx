@@ -1,6 +1,7 @@
 import { Container, BodyWrapper, Body } from '../styles/Global';
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import React from 'react';
 import styled from "styled-components";
 import logo from "../assets/logo.svg";
@@ -30,6 +31,18 @@ function Chat() {
         navigate("/Youtube");
     };
 
+    const {
+        transcript,
+        listening,
+        resetTranscript,
+        browserSupportsSpeechRecognition
+      } = useSpeechRecognition();
+    
+      if (!browserSupportsSpeechRecognition) {
+        return <span>Browser doesn't support speech recognition.</span>;
+      }
+
+
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <Container>
@@ -38,6 +51,15 @@ function Chat() {
                         <img className="logo" src={logo} alt="logo" />
                     </Header>
                     <Body>
+                    <div>
+                        <p>Microphone: {listening ? 'on' : 'off'}</p>
+                        <button onClick={() => SpeechRecognition.startListening({ continuous: true, language: 'ko' })}>
+                            Start
+                        </button>
+                        <button onClick={SpeechRecognition.stopListening}>Stop</button>
+                        <button onClick={resetTranscript}>Reset</button>
+                        <p>{transcript}</p>
+                    </div>
                     </Body>
                 </BodyWrapper>
                 <Footer>

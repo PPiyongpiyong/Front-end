@@ -10,6 +10,7 @@ import manual_icon from "../assets/bottom_bar/manual_icon.svg";
 import map_icon from "../assets/bottom_bar/map_icon.svg";
 import youtube_icon from "../assets/bottom_bar/youtube_icon.svg";
 import my_icon from "../assets/bottom_bar/my_icon.svg";
+import chat from "../assets/chat_btn.svg";
 
 function Youtube() {
     const navigate = useNavigate();
@@ -30,6 +31,8 @@ function Youtube() {
         navigate("/Youtube");
     };
 
+    const goChat = () => navigate("/Chat");
+
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <Container>
@@ -41,6 +44,9 @@ function Youtube() {
                     </Body>
                 </BodyWrapper>
                 <Footer>
+                    <Chat onClick={goChat}>
+                        <img className="chat" src={chat} alt="chat_btn" />
+                    </Chat>
                     <Base>
                         <img
                             src={bar}
@@ -88,6 +94,12 @@ const StyledLogoIcon = styled.img`
 const StyledIcon = styled.img`
   position: absolute;
   margin-top: -3.7rem;
+`;
+
+const Chat = styled.div`
+    position: relative;
+    bottom: 1.5rem;
+    left: 9.2rem;
 `;
 
 

@@ -1,7 +1,7 @@
 import { Container, BodyWrapper, Body } from '../styles/Global';
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import styled from "styled-components";
 import logo from "../assets/logo.svg";
 import bar from "../assets/bottom_bar/bar.svg";
@@ -11,8 +11,15 @@ import map_icon from "../assets/bottom_bar/map_icon.svg";
 import youtube_icon from "../assets/bottom_bar/youtube_icon.svg";
 import my_icon from "../assets/bottom_bar/my_icon.svg";
 import chat from "../assets/chat_btn.svg";
+
+// 카카오 맵 구현 관련 import
 import markerImage from "../assets/map/marker.svg";
+import hospitalMarker from "../assets/map/hp_mark.svg";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
+import { markerdata } from '../data/markerData';
+
+// 모달 관련 import
+import Modal from './Modal';
 
 function MapPage() {
     const navigate = useNavigate();
@@ -27,6 +34,9 @@ function MapPage() {
     });
 
     const [showMarkerInfo, setShowMarkerInfo] = useState(false); 
+        const toggleMarkerInfo = () => {
+        setShowMarkerInfo((prev) => !prev);  
+    };
 
     // Geocoder를 통해 위도, 경도를 주소로 변경하기
     const getAddress = (lat, lng) => {
@@ -83,8 +93,20 @@ function MapPage() {
         }
     }, []);
 
-    const toggleMarkerInfo = () => {
-        setShowMarkerInfo((prev) => !prev);  
+    // 모달 창 구현
+    const [openModal, setOpenModal] = useState(null); // 모달에 표시할 병원의 인덱스를 저장
+    const [selectedHospital, setSelectedHospital] = useState(null); // 선택된 병원의 정보 저장
+
+    // 마커 클릭 시 해당 병원의 정보와 모달 열기
+    const toggleModal = (index) => {
+        setSelectedHospital(markerdata[index]); // 선택된 병원 정보 저장
+        setOpenModal(index); // 해당 병원의 모달 열기
+    };
+
+    // 모달 닫기
+    const closeModal = () => {
+        setOpenModal(null);
+        setSelectedHospital(null); // 모달 닫을 때 정보 초기화
     };
 
     const goMy = () => navigate("/Mypage");
@@ -107,6 +129,7 @@ function MapPage() {
                                 style={{ width: '100%', height: '100%' }}
                                 level={3}
                             >
+                                {/* 현재 위치 마커 */}
                                 {!state.isLoading && (
                                     <MapMarker
                                         position={state.center}
@@ -118,43 +141,64 @@ function MapPage() {
                                         onClick={toggleMarkerInfo}  
                                     >
                                         {showMarkerInfo && (
-                                            <div style={{ padding: "5px", color: "#000", whiteSpace: "nowrap" }}>
+                                            <div style={{ padding: "5px", color: "#000", whiteSpace: "nowrap", textAlign: "left"  }}>
                                                 {state.errMsg || state.address}
                                             </div>
                                         )}
                                     </MapMarker>
                                 )}
+
+                                {/* 병원 위치 마커 */}
+                                {markerdata.map((marker, index) => (
+                                    <MapMarker
+                                        key={index}
+                                        position={{ lat: marker.lat, lng: marker.lng }}
+                                        image={{
+                                            src: hospitalMarker,
+                                            size: { width: 30, height: 30 },
+                                            options: { offset: { x: 15, y: 30 } },
+                                        }}
+                                        onClick={() => toggleModal(index)} // 마커 클릭 시 모달 열기
+                                    >
+                                        <div style={{ padding: "5px", color: "#000", whiteSpace: "nowrap", textAlign: "left" }}>
+                                            {marker.title}
+                                        </div>
+                                    </MapMarker>
+                                ))}
                             </Map>
+
+                            {/* 선택된 병원에 대해 모달 표시 */}
+                            {openModal !== null && selectedHospital && (
+                                <Modal isOpen={openModal !== null} onClose={closeModal}>
+                                    <div>
+                                        <h3>{selectedHospital.title}</h3>
+                                        <p>전화번호: {selectedHospital.tel}</p>
+                                        <button onClick={closeModal}>닫기</button>
+                                    </div>
+                                </Modal>
+                            )}
                         </StyledMapContainer>
+                        {/* 본인의 현재 위치 박스 */}
                         <MyAddress>
                             <p className='title'>현위치</p>
                             <p className='content'>{state.address}</p>
                         </MyAddress>
+
+                        {/* 병원 리스트 박스 - 연동 시 사용할 예정*/}
+                        {/* <HospitalBoxes>
+                            <HospitalBox>
+                                <p className='hospital_name'>구리 한양대병원</p>
+                                <p className='hospital_address'>경기도 구리시 경춘로 153</p>
+                            </HospitalBox>
+                        </HospitalBoxes> */}
+
                         <HospitalBoxes>
-                            <HospitalBox>
-                                <p className='hospital_name'>구리 한양대병원</p>
-                                <p className='hospital_address'>경기도 구리시 경춘로 153</p>
-                            </HospitalBox>
-                            <HospitalBox>
-                                <p className='hospital_name'>구리 한양대병원</p>
-                                <p className='hospital_address'>경기도 구리시 경춘로 153</p>
-                            </HospitalBox>
-                            <HospitalBox>
-                                <p className='hospital_name'>구리 한양대병원</p>
-                                <p className='hospital_address'>경기도 구리시 경춘로 153</p>
-                            </HospitalBox>
-                            <HospitalBox>
-                                <p className='hospital_name'>구리 한양대병원</p>
-                                <p className='hospital_address'>경기도 구리시 경춘로 153</p>
-                            </HospitalBox>
-                            <HospitalBox>
-                                <p className='hospital_name'>구리 한양대병원</p>
-                                <p className='hospital_address'>경기도 구리시 경춘로 153</p>
-                            </HospitalBox>
-                            <HospitalBox>
-                                <p className='hospital_name'>구리 한양대병원</p>
-                                <p className='hospital_address'>경기도 구리시 경춘로 153</p>
-                            </HospitalBox>
+                            {markerdata.map((hospital, index) => (
+                                <HospitalBox key={index}>
+                                    <p className='hospital_name'>{hospital.title}</p> {/* 병원 이름 */}
+                                    <p className='hospital_address'>{hospital.address}</p> {/* 병원 주소 */}
+                                </HospitalBox>
+                            ))}
                         </HospitalBoxes>
                     </Body>
                 </BodyWrapper>
