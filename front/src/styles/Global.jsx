@@ -1,7 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import styled from "styled-components";
-import { motion } from "framer-motion";
 
 export const Container = styled.div`
     display: flex;
@@ -15,6 +12,7 @@ export const Container = styled.div`
     scrollbar-width: none;
     align-items: center;
     border: 1px solid;
+    overflow-x: hidden;
 
     @media (hover: hover) {
         width: 390px;

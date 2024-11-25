@@ -10,42 +10,71 @@ import manual_icon from "../assets/bottom_bar/manual_icon.svg";
 import map_icon from "../assets/bottom_bar/map_icon.svg";
 import youtube_icon from "../assets/bottom_bar/youtube_icon.svg";
 import my_icon from "../assets/bottom_bar/my_icon.svg";
-import markerImage from "../assets/map/marker.svg";
-import { Map, MapMarker } from "react-kakao-maps-sdk";
+import chat from "../assets/chat_btn.svg";
 
-function MapPage(props) {
+// 카카오 맵 구현 관련 import
+import markerImage from "../assets/map/marker.svg";
+import hospitalMarker from "../assets/map/hp_mark.svg";
+import { Map, MapMarker } from "react-kakao-maps-sdk";
+import { markerdata } from '../data/markerData';
+
+// 모달 관련 import
+import Modal from './Modal';
+
+function MapPage() {
     const navigate = useNavigate();
     const [state, setState] = useState({
         center: {
-            // 초기 위치는 아산병원으로 잡음
             lat: 37.524877465547, 
             lng: 127.10788678005,
         },
+        address: "", // 주소명을 저장할 상태
         errMsg: null,
         isLoading: true,
     });
 
-    // 마커 클릭 시 위치 메시지가 보이도록 하기 위해 선언
     const [showMarkerInfo, setShowMarkerInfo] = useState(false); 
-
-    // 마커 클릭 시 상태 전환
-    const toggleMarkerInfo = () => {
+        const toggleMarkerInfo = () => {
         setShowMarkerInfo((prev) => !prev);  
     };
 
-    // geolocation 사용하여 본인 위치 위도, 경도로 불러오기 
+    // Geocoder를 통해 위도, 경도를 주소로 변경하기
+    const getAddress = (lat, lng) => {
+        const geocoder = new window.kakao.maps.services.Geocoder();
+    
+        geocoder.coord2Address(lng, lat, (result, status) => {
+            if (status === window.kakao.maps.services.Status.OK) {
+                const addressName = result[0]?.road_address?.address_name || result[0]?.address?.address_name;
+                setState((prev) => ({
+                    ...prev,
+                    address: addressName || "주소 정보를 가져올 수 없어요.",
+                }));
+            } else {
+                setState((prev) => ({
+                    ...prev,
+                    address: "주소 정보를 가져올 수 없어요.",
+                }));
+            }
+        });
+    };
+    
+
+    // 현재 위치를 위도, 경도로 받아온 후, getAddress 함수를 호출하여 위도, 경도를 주소로 변환함
     useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
+                    const { latitude, longitude } = position.coords;
                     setState((prev) => ({
                         ...prev,
                         center: {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude,
+                            lat: latitude,
+                            lng: longitude,
                         },
                         isLoading: false,
                     }));
+                    // 위도, 경도를 주소 변환하는 함수 호출
+                    getAddress(latitude, longitude); 
                 },
                 (err) => {
                     setState((prev) => ({
@@ -64,21 +93,27 @@ function MapPage(props) {
         }
     }, []);
 
-    const goMy = () => {
-        navigate("/Mypage");
+    // 모달 창 구현
+    const [openModal, setOpenModal] = useState(null); // 모달에 표시할 병원의 인덱스를 저장
+    const [selectedHospital, setSelectedHospital] = useState(null); // 선택된 병원의 정보 저장
+
+    // 마커 클릭 시 해당 병원의 정보와 모달 열기
+    const toggleModal = (index) => {
+        setSelectedHospital(markerdata[index]); // 선택된 병원 정보 저장
+        setOpenModal(index); // 해당 병원의 모달 열기
     };
 
-    const goManual = () => {
-        navigate("/Manual");
+    // 모달 닫기
+    const closeModal = () => {
+        setOpenModal(null);
+        setSelectedHospital(null); // 모달 닫을 때 정보 초기화
     };
 
-    const goMap = () => {
-        navigate("/");
-    };
-
-    const goYoutube = () => {
-        navigate("/Youtube");
-    };
+    const goMy = () => navigate("/Mypage");
+    const goManual = () => navigate("/Manual");
+    const goMap = () => navigate("/");
+    const goYoutube = () => navigate("/Youtube");
+    const goChat = () => navigate("/Chat");
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -94,45 +129,128 @@ function MapPage(props) {
                                 style={{ width: '100%', height: '100%' }}
                                 level={3}
                             >
+                                {/* 현재 위치 마커 */}
                                 {!state.isLoading && (
                                     <MapMarker
                                         position={state.center}
                                         image={{
-                                            // 마커로 사용하는 이미지 불러오기
                                             src: markerImage, 
-                                            size: {
-                                                width: 30,
-                                                height: 30, 
-                                            },
-                                            options: {
-                                                offset: {
-                                                    x: 20,
-                                                    y: 40, 
-                                                },
-                                            },
+                                            size: { width: 30, height: 30 },
+                                            options: { offset: { x: 20, y: 40 } },
                                         }}
-                                        // 클릭하면 상태가 전환되도록 함수 불러오기
                                         onClick={toggleMarkerInfo}  
                                     >
-                                        {/* 상태에 따라 주소 메시지 창이 보이도록 함. false: 안 보임, true: 보임*/}
                                         {showMarkerInfo && (
-                                            <div style={{ padding: "5px", color: "#000", whiteSpace: "nowrap" }}>
-                                                {state.errMsg ? state.errMsg : `${state.center.lat}, ${state.center.lng}`}
+                                            <div style={{ padding: "5px", color: "#000", whiteSpace: "nowrap", textAlign: "left"  }}>
+                                                {state.errMsg || state.address}
                                             </div>
                                         )}
                                     </MapMarker>
                                 )}
+
+                                {/* 병원 위치 마커 */}
+                                {markerdata.map((marker, index) => (
+                                    <MapMarker
+                                        key={index}
+                                        position={{ lat: marker.lat, lng: marker.lng }}
+                                        image={{
+                                            src: hospitalMarker,
+                                            size: { width: 30, height: 30 },
+                                            options: { offset: { x: 15, y: 30 } },
+                                        }}
+                                        onClick={() => toggleModal(index)} // 마커 클릭 시 모달 열기
+                                    >
+                                        <div style={{ padding: "5px", color: "#000", whiteSpace: "nowrap", textAlign: "left" }}>
+                                            {marker.title}
+                                        </div>
+                                    </MapMarker>
+                                ))}
                             </Map>
+
+                            {/* 선택된 병원에 대해 모달 표시 */}
+                            {openModal !== null && selectedHospital && (
+                                <Modal isOpen={openModal !== null} onClose={closeModal}>
+                                    <div>
+                                        {/* 전화 링크 수정 */}
+                                        <a 
+                                            href={`tel:${selectedHospital.tel}`} 
+                                            style={{
+                                                display: 'block',
+                                                textDecoration: 'none',
+                                            }}
+                                        >
+                                            <div 
+                                                style={{ 
+                                                    width: '20rem', 
+                                                    height: '4rem', 
+                                                    background: '#474747', 
+                                                    borderRadius: '10px', 
+                                                    color: '#6985FF', 
+                                                    fontSize: '23px', 
+                                                    display: 'flex',             
+                                                    justifyContent: 'center',    
+                                                    alignItems: 'center',        
+                                                    textAlign: 'center',
+                                                    marginBottom: '1rem',
+                                                }}
+                                            >
+                                                전화 {selectedHospital.tel}
+                                            </div>
+                                        </a>
+                                        
+                                        <div 
+                                            style={{ 
+                                                width: '20rem', 
+                                                height: '4rem', 
+                                                background: '#474747', 
+                                                borderRadius: '10px', 
+                                                color: '#FF5B59', 
+                                                fontSize: '23px', 
+                                                fontWeight: 'bold',
+                                                display: 'flex',             
+                                                justifyContent: 'center',    
+                                                alignItems: 'center',        
+                                                textAlign: 'center'          
+                                            }} 
+                                            onClick={closeModal}
+                                        >
+                                            취소
+                                        </div>
+                                    </div>
+                                </Modal>
+                            )}
+
                         </StyledMapContainer>
+                        {/* 본인의 현재 위치 박스 */}
+                        <MyAddress>
+                            <p className='title'>현위치</p>
+                            <p className='content'>{state.address}</p>
+                        </MyAddress>
+
+                        {/* 병원 리스트 박스 - 연동 시 사용할 예정*/}
+                        {/* <HospitalBoxes>
+                            <HospitalBox>
+                                <p className='hospital_name'>구리 한양대병원</p>
+                                <p className='hospital_address'>경기도 구리시 경춘로 153</p>
+                            </HospitalBox>
+                        </HospitalBoxes> */}
+
+                        <HospitalBoxes>
+                            {markerdata.map((hospital, index) => (
+                                <HospitalBox key={index}>
+                                    <p className='hospital_name'>{hospital.title}</p> {/* 병원 이름 */}
+                                    <p className='hospital_address'>{hospital.address}</p> {/* 병원 주소 */}
+                                </HospitalBox>
+                            ))}
+                        </HospitalBoxes>
                     </Body>
                 </BodyWrapper>
                 <Footer>
+                    <Chat onClick={goChat}>
+                        <img className="chat" src={chat} alt="chat_btn" />
+                    </Chat>
                     <Base>
-                        <img
-                            src={bar}
-                            width="100%"
-                            alt="footer_bar"
-                        />
+                        <img src={bar} width="100%" alt="footer_bar" />
                     </Base>
                     <StyledIcon src={map_icon} alt="map_icon" style={{ marginLeft: "-10rem" }} onClick={goMap} />
                     <StyledIcon src={manual_icon} alt="manual_icon" style={{ marginLeft: "-6rem" }} onClick={goManual} />
@@ -182,5 +300,68 @@ const StyledMapContainer = styled.div`
     border-radius: 8px; 
     overflow: hidden; 
 `;
+
+const MyAddress = styled.div`
+    position: relative;
+    margin: auto;
+    top: 1rem;
+    width: 21rem;
+    height: 4.5rem;
+    border: 1px solid #FF4F4D;
+    background-color: #fff6f6;
+    border-radius: 10px;
+
+    .title {
+        margin-left: -16rem;
+        margin-top: 0.7rem;
+        color: #FF4F4D;
+        font-weight: bold;
+    }
+    .content {
+        text-align: left;
+        margin-top: -0.7rem;
+        margin-left: 1rem;
+        font-size: 14px;
+    }
+`;
+
+const HospitalBoxes = styled.div`
+    margin-top: 2rem;
+    margin-bottom: 5.5rem;
+    margin-left: 0.44rem;
+`;
+
+const HospitalBox = styled.div`
+  margin-bottom: 1.1rem;
+  position: relative;
+  width: 21rem;
+  height: 4.5rem;
+  border: 1px solid #FF4F4D;
+  border-radius: 10px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+
+  .hospital_name {
+    text-align: left;
+    margin-left: 1rem;
+    margin-top: 0.8rem;
+    color: #FF4F4D;
+    font-weight: bold;
+    font-size: 17.5px;
+  }
+
+  .hospital_address {
+    text-align: left;
+    font-size: 14px;
+    margin-top: -0.7rem;
+    margin-left: 1rem;
+  }
+`;
+
+const Chat = styled.div`
+    position: relative;
+    bottom: 1.5rem;
+    left: 9.2rem;
+`;
+
 
 export default MapPage;
