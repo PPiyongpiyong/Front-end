@@ -170,7 +170,7 @@ function MapPage() {
                             {/* 선택된 병원에 대해 모달 표시 */}
                             {openModal !== null && selectedHospital && (
                                 <Modal isOpen={openModal !== null} onClose={closeModal}>
-                                    <div>
+                                    <div style={{marginTop: "40rem"}}>
                                         {/* 전화 링크 수정 */}
                                         <a 
                                             href={`tel:${selectedHospital.tel}`} 
