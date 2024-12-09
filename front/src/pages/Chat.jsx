@@ -2,15 +2,17 @@ import { Container, BodyWrapper, Body } from '../styles/Global';
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import React from 'react';
+import React, { useState } from 'react';
 import styled from "styled-components";
-import logo from "../assets/logo.svg";
 import bar from "../assets/bottom_bar/bar.svg";
 import logo_icon from "../assets/bottom_bar/logo_icon.svg";
 import manual_icon from "../assets/bottom_bar/manual_icon.svg";
 import map_icon from "../assets/bottom_bar/map_icon.svg";
 import youtube_icon from "../assets/bottom_bar/youtube_icon.svg";
 import my_icon from "../assets/bottom_bar/my_icon.svg";
+import back from "../assets/chat/back.svg";
+import speech from "../assets/chat/speech.svg";
+import btn from "../assets/chat/sendbox.svg";
 
 function Chat() {
     const navigate = useNavigate();
@@ -31,34 +33,83 @@ function Chat() {
         navigate("/Youtube");
     };
 
-    const {
-        transcript,
-        listening,
-        resetTranscript,
-        browserSupportsSpeechRecognition
-      } = useSpeechRecognition();
-    
-      if (!browserSupportsSpeechRecognition) {
-        return <span>Browser doesn't support speech recognition.</span>;
-      }
+    const backBtn = () => {
+        navigate("/");
+    };
 
+    // // stt 기능 구현을 위해 정의
+    // const {
+    //     transcript,  // stt 녹음한 내용을 담는 변수
+    //     listening,   // stt 녹음
+    //     resetTranscript,  // stt 녹음 reset
+    //     browserSupportsSpeechRecognition
+    //   } = useSpeechRecognition();
+    
+    //   if (!browserSupportsSpeechRecognition) {
+    //     return <span>Browser doesn't support speech recognition.</span>;
+    //   }
+
+    const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
+
+    // input 상태 관리
+    const [inputValue, setInputValue] = useState("");
+  
+    if (!browserSupportsSpeechRecognition) {
+      return <span>Browser doesn't support speech recognition.</span>;
+    }
+  
+    // 녹음 시작
+    const startListening = () => {
+      SpeechRecognition.startListening({ continuous: true, language: "ko" });
+    };
+  
+    // 녹음 종료 후 텍스트 반영
+    const stopListening = () => {
+      SpeechRecognition.stopListening();
+      setInputValue(transcript); // 녹음된 내용을 input 값에 설정
+    };
+
+    const handleSpeechClick = () => {
+        if (listening) {
+          stopListening();
+        } else {
+          startListening();
+        }
+    };
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <Container>
                 <BodyWrapper>
                     <Header>
-                        <img className="logo" src={logo} alt="logo" />
+                        <img className="back" src={back} alt="back" onClick={backBtn} />
                     </Header>
                     <Body>
-                    <div>
-                        <p>Microphone: {listening ? 'on' : 'off'}</p>
-                        <button onClick={() => SpeechRecognition.startListening({ continuous: true, language: 'ko' })}>
-                            Start
-                        </button>
-                        <button onClick={SpeechRecognition.stopListening}>Stop</button>
-                        <button onClick={resetTranscript}>Reset</button>
-                        <p>{transcript}</p>
+                    <AIChatBox>
+
+                    </AIChatBox>
+                    <UserChatBox>
+
+                    </UserChatBox>
+                    <div style={{ position: "absolute" }}>
+                        <ChatBox
+                            value={inputValue} // input 값을 상태로 관리
+                            onChange={(e) => setInputValue(e.target.value)} // 사용자가 직접 입력한 값 반영
+                            placeholder={listening ? "녹음 중..." : "질문을 입력하세요."}
+                        />
+                        <div style={{ position: "absolute", right: "1rem", top: "0.5rem" }}>
+                            <img
+                            className="speech"
+                            src={speech}
+                            alt="speech"
+                            onClick={handleSpeechClick} // 녹음 시작/중지 토글
+                            style={{ position: 'absolute', cursor: "pointer", left: "1rem", top: "44.5rem" }}
+                            />
+                            <img className="btn"
+                            src={btn}
+                            alt='btn'
+                            style={{ position:'absolute', cursor: "pointer", left: "19rem", top: "44rem" }}/>
+                        </div>
                     </div>
                     </Body>
                 </BodyWrapper>
@@ -82,11 +133,12 @@ function Chat() {
 };
 
 const Header = styled.header`
-    .logo {
+    .back {
         position: absolute;
         margin-top: 1.3rem;
         margin-left: -10.8rem;
     }
+    margin-bottom: 5rem;
 `;
 
 const Footer = styled.div`
@@ -112,5 +164,39 @@ const StyledIcon = styled.img`
   margin-top: -3.7rem;
 `;
 
+const AIChatBox = styled.div`
+    position: relative;
+    width: 20rem;
+    height: 3rem;
+    background-color: #fff6f6;
+    border: 1px solid #FF4F4D;
+    border-radius: 0 20px 20px 20px;
+    align-items: left;
+`;
+
+const UserChatBox = styled.div`
+    position: relative;
+    width: 20rem;
+    height: 3rem;
+    background-color: white;
+    border: 1px solid #FF4F4D;
+    border-radius: 20px 0px 20px 20px;
+    margin-top: 1.1rem;
+    align-items: left;
+`;
+
+const ChatBox = styled.input`
+    position: absolute;
+    top: 43rem;
+    left: -1rem;
+    width: 19rem;
+    height: 2.5rem;
+    background-color: white;
+    border: 1px solid #FF4F4D;
+    border-radius: 20px 20px 20px 20px;
+    margin-top: 1.1rem;
+    padding-left: 2.5rem;
+    font-size: 15px;
+`;
 
 export default Chat;
