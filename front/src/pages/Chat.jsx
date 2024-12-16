@@ -1,15 +1,10 @@
 import { Container, BodyWrapper, Body } from '../styles/Global';
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import TextareaAutosize from 'react-textarea-autosize';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import React, { useState } from 'react';
 import styled from "styled-components";
-import bar from "../assets/bottom_bar/bar.svg";
-import logo_icon from "../assets/bottom_bar/logo_icon.svg";
-import manual_icon from "../assets/bottom_bar/manual_icon.svg";
-import map_icon from "../assets/bottom_bar/map_icon.svg";
-import youtube_icon from "../assets/bottom_bar/youtube_icon.svg";
-import my_icon from "../assets/bottom_bar/my_icon.svg";
 import back from "../assets/chat/back.svg";
 import speech from "../assets/chat/speech.svg";
 import btn from "../assets/chat/sendbox.svg";
@@ -17,39 +12,16 @@ import btn from "../assets/chat/sendbox.svg";
 function Chat() {
     const navigate = useNavigate();
 
-    const goMy = () => {
-      navigate("/Mypage");
-    };
-
-    const goManual = () => {
-        navigate("/Manual");
-      };
-
-    const goMap = () => {
-        navigate("/");
-    };  
-
-    const goYoutube = () => {
-        navigate("/Youtube");
-    };
-
     const backBtn = () => {
         navigate("/");
     };
 
-    // // stt 기능 구현을 위해 정의
-    // const {
-    //     transcript,  // stt 녹음한 내용을 담는 변수
-    //     listening,   // stt 녹음
-    //     resetTranscript,  // stt 녹음 reset
-    //     browserSupportsSpeechRecognition
-    //   } = useSpeechRecognition();
-    
-    //   if (!browserSupportsSpeechRecognition) {
-    //     return <span>Browser doesn't support speech recognition.</span>;
-    //   }
-
-    const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
+    // stt 기능 구현을 위해 정의
+    const { 
+      transcript, // stt 녹음한 내용을 담는 변수
+      listening, // stt 녹음
+      browserSupportsSpeechRecognition 
+    } = useSpeechRecognition();
 
     // input 상태 관리
     const [inputValue, setInputValue] = useState("");
@@ -86,47 +58,34 @@ function Chat() {
                     </Header>
                     <Body>
                     <AIChatBox>
-
+                    안녕하세요!
+                    챗봇에게 궁금한 점을 물어보세요.
                     </AIChatBox>
                     <UserChatBox>
-
+                    절단 사고가 났을 때 어떻게 해야 하나요?
                     </UserChatBox>
-                    <div style={{ position: "absolute" }}>
-                        <ChatBox
-                            value={inputValue} // input 값을 상태로 관리
-                            onChange={(e) => setInputValue(e.target.value)} // 사용자가 직접 입력한 값 반영
-                            placeholder={listening ? "녹음 중..." : "질문을 입력하세요."}
+                    <div style={{ position: "absolute", marginBottom: "100px" }}> 
+                        <StyledTextareaAutosize
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        placeholder={listening ? "녹음 중..." : "질문을 입력하세요."}
                         />
                         <div style={{ position: "absolute", right: "1rem", top: "0.5rem" }}>
                             <img
                             className="speech"
                             src={speech}
                             alt="speech"
-                            onClick={handleSpeechClick} // 녹음 시작/중지 토글
-                            style={{ position: 'absolute', cursor: "pointer", left: "1rem", top: "44.5rem" }}
+                            onClick={handleSpeechClick} // 녹음 시작 & 중지 토글
+                            style={{ position: 'absolute', cursor: "pointer", left: "1.8rem", top: "48.5rem" }}
                             />
                             <img className="btn"
                             src={btn}
                             alt='btn'
-                            style={{ position:'absolute', cursor: "pointer", left: "19rem", top: "44rem" }}/>
+                            style={{ position:'absolute', cursor: "pointer", left: "19.7rem", top: "48rem" }}/>
                         </div>
                     </div>
                     </Body>
                 </BodyWrapper>
-                <Footer>
-                    <Base>
-                        <img
-                            src={bar}
-                            width="100%"
-                            alt="footer_bar"
-                        />
-                    </Base>
-                        <StyledIcon src={map_icon} alt="map_icon" style={{marginLeft: "-10rem"}} onClick={goMap}/>
-                        <StyledIcon src={manual_icon} alt="manual_icon" style={{marginLeft: "-6rem"}} onClick={goManual}/>
-                        <StyledLogoIcon src={logo_icon} alt="logo_icon" /> 
-                        <StyledIcon src={youtube_icon} alt="youtube_icon" style={{marginLeft: "3.7rem"}} onClick={goYoutube}/>
-                        <StyledIcon src={my_icon} alt="my_icon" style={{marginLeft: "8rem", marginTop: "-3.5rem"}} onClick={goMy}/>
-                </Footer>
             </Container>
         </motion.div>
     );
@@ -141,62 +100,48 @@ const Header = styled.header`
     margin-bottom: 5rem;
 `;
 
-const Footer = styled.div`
-  position: absolute;
-  left: 0rem;
-  bottom: 0;
-  border: none;
-  margin: 0;
-`;
-
-const Base = styled.div``;
-
-// logo icon만 변경하고 싶어서 styled-component 설정해줌
-const StyledLogoIcon = styled.img`
-  position: absolute;
-  width: 4rem;
-  margin-left: -1.9rem;
-  margin-top: -4.35rem; 
-`;
-
-const StyledIcon = styled.img`
-  position: absolute;
-  margin-top: -3.7rem;
-`;
-
 const AIChatBox = styled.div`
     position: relative;
     width: 20rem;
-    height: 3rem;
+    height: auto;
     background-color: #fff6f6;
     border: 1px solid #FF4F4D;
     border-radius: 0 20px 20px 20px;
     align-items: left;
+    color: #FF4F4D;
+    padding: 10px;
+    text-align: left;
 `;
 
 const UserChatBox = styled.div`
     position: relative;
     width: 20rem;
-    height: 3rem;
+    height: auto;
     background-color: white;
     border: 1px solid #FF4F4D;
     border-radius: 20px 0px 20px 20px;
     margin-top: 1.1rem;
     align-items: left;
+    color: #FF4F4D;
+    padding: 10px;
 `;
 
-const ChatBox = styled.input`
-    position: absolute;
-    top: 43rem;
-    left: -1rem;
-    width: 19rem;
-    height: 2.5rem;
-    background-color: white;
-    border: 1px solid #FF4F4D;
-    border-radius: 20px 20px 20px 20px;
-    margin-top: 1.1rem;
-    padding-left: 2.5rem;
-    font-size: 15px;
+const StyledTextareaAutosize = styled(TextareaAutosize)`
+  position: absolute;
+  top: 47rem;
+  left: -0.1rem;
+  width: 16.6rem;
+  background-color: white;
+  border: 1px solid #FF4F4D;
+  border-radius: 20px 20px 20px 20px;
+  margin-top: 1.1rem;
+  padding : 0.6rem 2.5rem 0.6rem 2.5rem;
+  font-size: 18px;
+  resize: none;
+  
+  ::-webkit-scrollbar {
+  display: none;
+  }
 `;
 
 export default Chat;
