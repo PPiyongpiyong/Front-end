@@ -8,9 +8,8 @@ import bar from "../assets/bottom_bar/bar.svg";
 import logo_icon from "../assets/bottom_bar/logo_icon.svg";
 import manual_icon from "../assets/bottom_bar/manual_icon.svg";
 import map_icon from "../assets/bottom_bar/map_icon.svg";
-import youtube_icon from "../assets/bottom_bar/youtube_icon.svg";
+import chat_icon from "../assets/bottom_bar/chat.svg";
 import my_icon from "../assets/bottom_bar/my_icon.svg";
-import chat from "../assets/chat_btn.svg";
 
 // 카카오 맵 구현 관련 import
 import markerImage from "../assets/map/marker.svg";
@@ -112,7 +111,6 @@ function MapPage() {
     const goMy = () => navigate("/Mypage");
     const goManual = () => navigate("/Manual");
     const goMap = () => navigate("/");
-    const goYoutube = () => navigate("/Youtube");
     const goChat = () => navigate("/Chat");
 
     return (
@@ -246,16 +244,13 @@ function MapPage() {
                     </Body>
                 </BodyWrapper>
                 <Footer>
-                    <Chat onClick={goChat}>
-                        <img className="chat" src={chat} alt="chat_btn" />
-                    </Chat>
                     <Base>
                         <img src={bar} width="100%" alt="footer_bar" />
                     </Base>
                     <StyledIcon src={map_icon} alt="map_icon" style={{ marginLeft: "-10rem" }} onClick={goMap} />
                     <StyledIcon src={manual_icon} alt="manual_icon" style={{ marginLeft: "-6rem" }} onClick={goManual} />
                     <StyledLogoIcon src={logo_icon} alt="logo_icon" />
-                    <StyledIcon src={youtube_icon} alt="youtube_icon" style={{ marginLeft: "3.7rem" }} onClick={goYoutube} />
+                    <StyledIcon src={chat_icon} alt="chat_icon" style={{ marginLeft: "3.7rem" }} onClick={goChat} />
                     <StyledIcon src={my_icon} alt="my_icon" style={{ marginLeft: "8rem", marginTop: "-3.5rem" }} onClick={goMy} />
                 </Footer>
             </Container>
