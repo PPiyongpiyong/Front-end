@@ -20,6 +20,9 @@ import { markerdata } from '../data/markerData';
 // 모달 관련 import
 import Modal from './Modal';
 
+// selectBox 구현
+import { selectBOX } from '../data/selectBox.js';
+
 function MapPage() {
     const navigate = useNavigate();
     const [state, setState] = useState({
@@ -112,6 +115,12 @@ function MapPage() {
     const goManual = () => navigate("/Manual");
     const goMap = () => navigate("/");
     const goChat = () => navigate("/Chat");
+
+
+    useEffect(() => { 
+        selectBOX();  // selectBOX 생성함수를 컴포넌트가 로드 되자마자 실행
+    }, []);
+
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -219,6 +228,13 @@ function MapPage() {
                             )}
 
                         </StyledMapContainer>
+
+
+                        <SelectBox>
+                            <select name="department" id="department"></select>
+                        </SelectBox> 
+
+
                         {/* 본인의 현재 위치 박스 */}
                         <MyAddress>
                             <p className='title'>현위치</p>
@@ -294,6 +310,21 @@ const StyledMapContainer = styled.div`
     margin-top: 5.5rem;
     border-radius: 8px; 
     overflow: hidden; 
+`;
+
+const SelectBox = styled.div`
+    margin-top: 1rem;
+
+    #department {
+        height: 1.8rem;
+        width: 9rem;
+        border: 1px solid #FF4F4D;
+        background-color: #fff6f6;
+        border-radius: 10px;   
+        padding-left : 5px;
+        margin-left: 11.5rem;
+    }
+
 `;
 
 const MyAddress = styled.div`
