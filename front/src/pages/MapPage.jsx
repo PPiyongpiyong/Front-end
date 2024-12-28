@@ -319,10 +319,10 @@ const SelectBox = styled.div`
         height: 1.8rem;
         width: 9rem;
         border: 1px solid #FF4F4D;
-        background-color: #fff6f6;
         border-radius: 10px;   
         padding-left : 5px;
         margin-left: 11.5rem;
+        outline: none;
     }
 
 `;
@@ -382,12 +382,5 @@ const HospitalBox = styled.div`
     margin-left: 1rem;
   }
 `;
-
-const Chat = styled.div`
-    position: relative;
-    bottom: 1.5rem;
-    left: 9.2rem;
-`;
-
 
 export default MapPage;

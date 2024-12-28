@@ -70,7 +70,7 @@ function Chat() {
                         onChange={(e) => setInputValue(e.target.value)}
                         placeholder={listening ? "녹음 중..." : "질문을 입력하세요."}
                         />
-                        <div style={{ position: "absolute", right: "1rem", top: "0.5rem" }}>
+                        <div style={{ position: "absolute", right: "1rem", top: "-0.65rem" }}>
                             <img
                             className="speech"
                             src={speech}
@@ -134,13 +134,13 @@ const StyledTextareaAutosize = styled(TextareaAutosize)`
   background-color: white;
   border: 1px solid #FF4F4D;
   border-radius: 20px 20px 20px 20px;
-  margin-top: 1.1rem;
   padding : 0.6rem 2.5rem 0.6rem 2.5rem;
   font-size: 18px;
   resize: none;
-  
+  outline: none;
+
   ::-webkit-scrollbar {
-  display: none;
+    display: none;
   }
 `;
 
