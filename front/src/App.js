@@ -10,7 +10,6 @@ const ManualDetail = React.lazy(() => import('./pages/ManualDetail'));
 const MapPage = React.lazy(() => import('./pages/MapPage'));
 const Mypage = React.lazy(() => import('./pages/Mypage'));
 const Signup = React.lazy(() => import('./pages/Signup'));
-const Youtube = React.lazy(() => import('./pages/Youtube'));
 
 function App() {
   return (
@@ -25,7 +24,6 @@ function App() {
             <Route path="/ManualDetail" element={<ManualDetail />} />
             <Route path="/Mypage" element={<Mypage />} />
             <Route path="/Signup" element={<Signup />} />
-            <Route path="/Youtube" element={<Youtube />} />
           </Routes>
         </Suspense>
       </AnimatePresence>

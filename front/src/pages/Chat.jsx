@@ -54,7 +54,7 @@ function Chat() {
             <Container>
                 <BodyWrapper>
                     <Header>
-                        <img className="back" src={back} alt="back" onClick={backBtn} />
+                        <img className="back" src={back} style={{ cursor: "pointer" }} alt="back" onClick={backBtn} />
                     </Header>
                     <Body>
                     <AIChatBox>
