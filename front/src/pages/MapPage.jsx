@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import logo from "../assets/logo.svg";
+import heart from "../assets/map/heart.svg";
+import heart_empty from "../assets/map/heart_empty.svg";
 import bar from "../assets/bottom_bar/bar.svg";
 import logo_icon from "../assets/bottom_bar/logo_icon.svg";
 import manual_icon from "../assets/bottom_bar/manual_icon.svg";
@@ -15,7 +17,7 @@ import my_icon from "../assets/bottom_bar/my_icon.svg";
 import markerImage from "../assets/map/marker.svg";
 import hospitalMarker from "../assets/map/hp_mark.svg";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
-import { markerdata } from '../data/markerData';
+import { markerdata as initialMarkerData } from '../data/markerData';
 
 // 모달 관련 import
 import Modal from './Modal';
@@ -101,7 +103,7 @@ function MapPage() {
 
     // 마커 클릭 시 해당 병원의 정보와 모달 열기
     const toggleModal = (index) => {
-        setSelectedHospital(markerdata[index]); // 선택된 병원 정보 저장
+        setSelectedHospital(initialMarkerData[index]); // 선택된 병원 정보 저장
         setOpenModal(index); // 해당 병원의 모달 열기
     };
 
@@ -120,6 +122,18 @@ function MapPage() {
     useEffect(() => { 
         selectBOX();  // selectBOX 생성함수를 컴포넌트가 로드 되자마자 실행
     }, []);
+
+
+    // 즐겨찾기 기능 구현
+    const [markerData, setMarkerData] = useState(initialMarkerData);
+
+    const onClickHeart = (index) => {
+      setMarkerData((prevData) =>
+        prevData.map((hospital, idx) =>
+          idx === index ? { ...hospital, isLiked: !hospital.isLiked } : hospital
+        )
+      );
+    };
 
 
     return (
@@ -156,7 +170,7 @@ function MapPage() {
                                 )}
 
                                 {/* 병원 위치 마커 */}
-                                {markerdata.map((marker, index) => (
+                                {initialMarkerData.map((marker, index) => (
                                     <MapMarker
                                         key={index}
                                         position={{ lat: marker.lat, lng: marker.lng }}
@@ -250,11 +264,20 @@ function MapPage() {
                         </HospitalBoxes> */}
 
                         <HospitalBoxes>
-                            {markerdata.map((hospital, index) => (
-                                <HospitalBox key={index}>
-                                    <p className='hospital_name'>{hospital.title}</p> {/* 병원 이름 */}
-                                    <p className='hospital_address'>{hospital.address}</p> {/* 병원 주소 */}
-                                </HospitalBox>
+                        {markerData
+                            .slice() // 원본 데이터를 변경하지 않기 위해 복사
+                            .sort((a, b) => b.isLiked - a.isLiked) // isLiked가 true인 항목을 우선하도록 정렬
+                            .map((hospital, index) => (
+                            <HospitalBox key={index}>
+                                <p className="hospital_name">{hospital.title}</p> {/* 병원 이름 */}
+                                <p className="hospital_address">{hospital.address}</p> {/* 병원 주소 */}
+                                <img
+                                className="hospital_isLiked"
+                                src={hospital.isLiked ? heart : heart_empty}
+                                alt="heart"
+                                onClick={() => onClickHeart(index)}
+                                />
+                            </HospitalBox>
                             ))}
                         </HospitalBoxes>
                     </Body>
@@ -380,6 +403,12 @@ const HospitalBox = styled.div`
     font-size: 14px;
     margin-top: -0.7rem;
     margin-left: 1rem;
+  }
+
+  .hospital_isLiked {
+    position: relative;
+    margin-left: 16rem;
+    top: -3.5rem;
   }
 `;
 
