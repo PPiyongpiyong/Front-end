@@ -22,9 +22,6 @@ import { markerdata as initialMarkerData } from '../data/markerData';
 // 모달 관련 import
 import Modal from './Modal';
 
-// selectBox 구현
-import { selectBOX } from '../data/selectBox.js';
-
 function MapPage() {
     const navigate = useNavigate();
     const [state, setState] = useState({
@@ -118,12 +115,6 @@ function MapPage() {
     const goMap = () => navigate("/");
     const goChat = () => navigate("/Chat");
 
-
-    useEffect(() => { 
-        selectBOX();  // selectBOX 생성함수를 컴포넌트가 로드 되자마자 실행
-    }, []);
-
-
     // 즐겨찾기 기능 구현
     const [markerData, setMarkerData] = useState(initialMarkerData);
 
@@ -135,6 +126,33 @@ function MapPage() {
       );
     };
 
+    // selectBox 생성
+    const selectList = [
+        {name: "내과"},
+        {name: "외과"},
+        {name: "정형외과"},
+        {name: "산부인과"},
+        {name: "피부과"},
+        {name: "이비인후과"},
+        {name: "치과"},
+        {name: "신경외과"},
+        {name: "소아과"},
+        {name: "안과"},
+        {name: "비뇨기과"},
+        {name: "정신건강의학과"},
+        {name: "가정의학과"},
+    ];
+    const [selected, setSelected] = useState("진료과 선택");
+
+    const handleSelect = (e) => {
+        const selectedValue = e.target.value;
+        setSelected(selectedValue);
+        console.log(`${selectedValue} 선택함`); 
+      };
+      
+    const filteredData = selected === "진료과 선택" 
+    ? markerData 
+    : markerData.filter(hospital => hospital.department === selected);
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -245,9 +263,15 @@ function MapPage() {
 
 
                         <SelectBox>
-                            <select name="department" id="department"></select>
-                        </SelectBox> 
-
+                            <select className="department" onChange={handleSelect} value={selected}>
+                                <option value="진료과 선택">진료과 선택</option>
+                                {selectList.map((item) => (
+                                    <option value={item.name} key={item.name}>
+                                        {item.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </SelectBox>
 
                         {/* 본인의 현재 위치 박스 */}
                         <MyAddress>
@@ -264,21 +288,21 @@ function MapPage() {
                         </HospitalBoxes> */}
 
                         <HospitalBoxes>
-                            {markerData
-                                .slice() // 원본 데이터를 변경하지 않기 위해 복사
-                                .sort((a, b) => b.isLiked - a.isLiked) // isLiked가 true인 항목을 우선하도록 정렬
+                            {filteredData
+                                .slice()
+                                .sort((a, b) => b.isLiked - a.isLiked)
                                 .map((hospital, index) => (
-                                <HospitalBox key={index}>
-                                    <p className="hospital_name">{hospital.title}</p> {/* 병원 이름 */}
-                                    <p className="hospital_address">{hospital.address}</p> {/* 병원 주소 */}
-                                    <img
-                                    className="hospital_isLiked"
-                                    src={hospital.isLiked ? heart : heart_empty}
-                                    alt="heart"
-                                    onClick={() => onClickHeart(index)}
-                                    />
-                                </HospitalBox>
-                            ))}
+                                    <HospitalBox key={index}>
+                                        <p className="hospital_name">{hospital.title}</p>
+                                        <p className="hospital_address">{hospital.address}</p>
+                                        <img
+                                            className="hospital_isLiked"
+                                            src={hospital.isLiked ? heart : heart_empty}
+                                            alt="heart"
+                                            onClick={() => onClickHeart(index)}
+                                        />
+                                    </HospitalBox>
+                                ))}
                         </HospitalBoxes>
                     </Body>
                 </BodyWrapper>
@@ -338,7 +362,7 @@ const StyledMapContainer = styled.div`
 const SelectBox = styled.div`
     margin-top: 1rem;
 
-    #department {
+    .department {
         height: 1.8rem;
         width: 9rem;
         border: 1px solid #FF4F4D;
