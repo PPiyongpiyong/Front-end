@@ -264,20 +264,20 @@ function MapPage() {
                         </HospitalBoxes> */}
 
                         <HospitalBoxes>
-                        {markerData
-                            .slice() // 원본 데이터를 변경하지 않기 위해 복사
-                            .sort((a, b) => b.isLiked - a.isLiked) // isLiked가 true인 항목을 우선하도록 정렬
-                            .map((hospital, index) => (
-                            <HospitalBox key={index}>
-                                <p className="hospital_name">{hospital.title}</p> {/* 병원 이름 */}
-                                <p className="hospital_address">{hospital.address}</p> {/* 병원 주소 */}
-                                <img
-                                className="hospital_isLiked"
-                                src={hospital.isLiked ? heart : heart_empty}
-                                alt="heart"
-                                onClick={() => onClickHeart(index)}
-                                />
-                            </HospitalBox>
+                            {markerData
+                                .slice() // 원본 데이터를 변경하지 않기 위해 복사
+                                .sort((a, b) => b.isLiked - a.isLiked) // isLiked가 true인 항목을 우선하도록 정렬
+                                .map((hospital, index) => (
+                                <HospitalBox key={index}>
+                                    <p className="hospital_name">{hospital.title}</p> {/* 병원 이름 */}
+                                    <p className="hospital_address">{hospital.address}</p> {/* 병원 주소 */}
+                                    <img
+                                    className="hospital_isLiked"
+                                    src={hospital.isLiked ? heart : heart_empty}
+                                    alt="heart"
+                                    onClick={() => onClickHeart(index)}
+                                    />
+                                </HospitalBox>
                             ))}
                         </HospitalBoxes>
                     </Body>
