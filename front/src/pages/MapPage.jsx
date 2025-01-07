@@ -4,22 +4,26 @@ import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import logo from "../assets/logo.svg";
+import heart from "../assets/map/heart.svg";
+import heart_empty from "../assets/map/heart_empty.svg";
 import bar from "../assets/bottom_bar/bar.svg";
 import logo_icon from "../assets/bottom_bar/logo_icon.svg";
 import manual_icon from "../assets/bottom_bar/manual_icon.svg";
 import map_icon from "../assets/bottom_bar/map_icon.svg";
-import youtube_icon from "../assets/bottom_bar/youtube_icon.svg";
+import chat_icon from "../assets/bottom_bar/chat.svg";
 import my_icon from "../assets/bottom_bar/my_icon.svg";
-import chat from "../assets/chat_btn.svg";
 
 // 카카오 맵 구현 관련 import
 import markerImage from "../assets/map/marker.svg";
 import hospitalMarker from "../assets/map/hp_mark.svg";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
-import { markerdata } from '../data/markerData';
+import { markerdata as initialMarkerData } from '../data/markerData';
 
 // 모달 관련 import
 import Modal from './Modal';
+
+// selectBox 구현
+import { selectBOX } from '../data/selectBox.js';
 
 function MapPage() {
     const navigate = useNavigate();
@@ -99,7 +103,7 @@ function MapPage() {
 
     // 마커 클릭 시 해당 병원의 정보와 모달 열기
     const toggleModal = (index) => {
-        setSelectedHospital(markerdata[index]); // 선택된 병원 정보 저장
+        setSelectedHospital(initialMarkerData[index]); // 선택된 병원 정보 저장
         setOpenModal(index); // 해당 병원의 모달 열기
     };
 
@@ -112,8 +116,25 @@ function MapPage() {
     const goMy = () => navigate("/Mypage");
     const goManual = () => navigate("/Manual");
     const goMap = () => navigate("/");
-    const goYoutube = () => navigate("/Youtube");
     const goChat = () => navigate("/Chat");
+
+
+    useEffect(() => { 
+        selectBOX();  // selectBOX 생성함수를 컴포넌트가 로드 되자마자 실행
+    }, []);
+
+
+    // 즐겨찾기 기능 구현
+    const [markerData, setMarkerData] = useState(initialMarkerData);
+
+    const onClickHeart = (index) => {
+      setMarkerData((prevData) =>
+        prevData.map((hospital, idx) =>
+          idx === index ? { ...hospital, isLiked: !hospital.isLiked } : hospital
+        )
+      );
+    };
+
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -149,7 +170,7 @@ function MapPage() {
                                 )}
 
                                 {/* 병원 위치 마커 */}
-                                {markerdata.map((marker, index) => (
+                                {initialMarkerData.map((marker, index) => (
                                     <MapMarker
                                         key={index}
                                         position={{ lat: marker.lat, lng: marker.lng }}
@@ -221,6 +242,13 @@ function MapPage() {
                             )}
 
                         </StyledMapContainer>
+
+
+                        <SelectBox>
+                            <select name="department" id="department"></select>
+                        </SelectBox> 
+
+
                         {/* 본인의 현재 위치 박스 */}
                         <MyAddress>
                             <p className='title'>현위치</p>
@@ -236,26 +264,32 @@ function MapPage() {
                         </HospitalBoxes> */}
 
                         <HospitalBoxes>
-                            {markerdata.map((hospital, index) => (
+                            {markerData
+                                .slice() // 원본 데이터를 변경하지 않기 위해 복사
+                                .sort((a, b) => b.isLiked - a.isLiked) // isLiked가 true인 항목을 우선하도록 정렬
+                                .map((hospital, index) => (
                                 <HospitalBox key={index}>
-                                    <p className='hospital_name'>{hospital.title}</p> {/* 병원 이름 */}
-                                    <p className='hospital_address'>{hospital.address}</p> {/* 병원 주소 */}
+                                    <p className="hospital_name">{hospital.title}</p> {/* 병원 이름 */}
+                                    <p className="hospital_address">{hospital.address}</p> {/* 병원 주소 */}
+                                    <img
+                                    className="hospital_isLiked"
+                                    src={hospital.isLiked ? heart : heart_empty}
+                                    alt="heart"
+                                    onClick={() => onClickHeart(index)}
+                                    />
                                 </HospitalBox>
                             ))}
                         </HospitalBoxes>
                     </Body>
                 </BodyWrapper>
                 <Footer>
-                    <Chat onClick={goChat}>
-                        <img className="chat" src={chat} alt="chat_btn" />
-                    </Chat>
                     <Base>
                         <img src={bar} width="100%" alt="footer_bar" />
                     </Base>
                     <StyledIcon src={map_icon} alt="map_icon" style={{ marginLeft: "-10rem" }} onClick={goMap} />
                     <StyledIcon src={manual_icon} alt="manual_icon" style={{ marginLeft: "-6rem" }} onClick={goManual} />
                     <StyledLogoIcon src={logo_icon} alt="logo_icon" />
-                    <StyledIcon src={youtube_icon} alt="youtube_icon" style={{ marginLeft: "3.7rem" }} onClick={goYoutube} />
+                    <StyledIcon src={chat_icon} alt="chat_icon" style={{ marginLeft: "3.7rem" }} onClick={goChat} />
                     <StyledIcon src={my_icon} alt="my_icon" style={{ marginLeft: "8rem", marginTop: "-3.5rem" }} onClick={goMy} />
                 </Footer>
             </Container>
@@ -299,6 +333,21 @@ const StyledMapContainer = styled.div`
     margin-top: 5.5rem;
     border-radius: 8px; 
     overflow: hidden; 
+`;
+
+const SelectBox = styled.div`
+    margin-top: 1rem;
+
+    #department {
+        height: 1.8rem;
+        width: 9rem;
+        border: 1px solid #FF4F4D;
+        border-radius: 10px;   
+        padding-left : 5px;
+        margin-left: 11.5rem;
+        outline: none;
+    }
+
 `;
 
 const MyAddress = styled.div`
@@ -355,13 +404,12 @@ const HospitalBox = styled.div`
     margin-top: -0.7rem;
     margin-left: 1rem;
   }
-`;
 
-const Chat = styled.div`
+  .hospital_isLiked {
     position: relative;
-    bottom: 1.5rem;
-    left: 9.2rem;
+    margin-left: 16rem;
+    top: -3.5rem;
+  }
 `;
-
 
 export default MapPage;
