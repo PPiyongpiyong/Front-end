@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import logo from "../assets/logo.svg";
+import heart from "../assets/map/heart.svg";
+import heart_empty from "../assets/map/heart_empty.svg";
 import bar from "../assets/bottom_bar/bar.svg";
 import logo_icon from "../assets/bottom_bar/logo_icon.svg";
 import manual_icon from "../assets/bottom_bar/manual_icon.svg";
@@ -15,13 +17,10 @@ import my_icon from "../assets/bottom_bar/my_icon.svg";
 import markerImage from "../assets/map/marker.svg";
 import hospitalMarker from "../assets/map/hp_mark.svg";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
-import { markerdata } from '../data/markerData';
+import { markerdata as initialMarkerData } from '../data/markerData';
 
 // 모달 관련 import
 import Modal from './Modal';
-
-// selectBox 구현
-import { selectBOX } from '../data/selectBox.js';
 
 function MapPage() {
     const navigate = useNavigate();
@@ -101,7 +100,7 @@ function MapPage() {
 
     // 마커 클릭 시 해당 병원의 정보와 모달 열기
     const toggleModal = (index) => {
-        setSelectedHospital(markerdata[index]); // 선택된 병원 정보 저장
+        setSelectedHospital(initialMarkerData[index]); // 선택된 병원 정보 저장
         setOpenModal(index); // 해당 병원의 모달 열기
     };
 
@@ -116,11 +115,44 @@ function MapPage() {
     const goMap = () => navigate("/");
     const goChat = () => navigate("/Chat");
 
+    // 즐겨찾기 기능 구현
+    const [markerData, setMarkerData] = useState(initialMarkerData);
 
-    useEffect(() => { 
-        selectBOX();  // selectBOX 생성함수를 컴포넌트가 로드 되자마자 실행
-    }, []);
+    const onClickHeart = (index) => {
+      setMarkerData((prevData) =>
+        prevData.map((hospital, idx) =>
+          idx === index ? { ...hospital, isLiked: !hospital.isLiked } : hospital
+        )
+      );
+    };
 
+    // selectBox 생성
+    const selectList = [
+        {name: "내과"},
+        {name: "외과"},
+        {name: "정형외과"},
+        {name: "산부인과"},
+        {name: "피부과"},
+        {name: "이비인후과"},
+        {name: "치과"},
+        {name: "신경외과"},
+        {name: "소아과"},
+        {name: "안과"},
+        {name: "비뇨기과"},
+        {name: "정신건강의학과"},
+        {name: "가정의학과"},
+    ];
+    const [selected, setSelected] = useState("진료과 선택");
+
+    const handleSelect = (e) => {
+        const selectedValue = e.target.value;
+        setSelected(selectedValue);
+        console.log(`${selectedValue} 선택함`); 
+      };
+      
+    const filteredData = selected === "진료과 선택" 
+    ? markerData 
+    : markerData.filter(hospital => hospital.department === selected);
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -156,7 +188,7 @@ function MapPage() {
                                 )}
 
                                 {/* 병원 위치 마커 */}
-                                {markerdata.map((marker, index) => (
+                                {initialMarkerData.map((marker, index) => (
                                     <MapMarker
                                         key={index}
                                         position={{ lat: marker.lat, lng: marker.lng }}
@@ -231,9 +263,15 @@ function MapPage() {
 
 
                         <SelectBox>
-                            <select name="department" id="department"></select>
-                        </SelectBox> 
-
+                            <select className="department" onChange={handleSelect} value={selected}>
+                                <option value="진료과 선택">진료과 선택</option>
+                                {selectList.map((item) => (
+                                    <option value={item.name} key={item.name}>
+                                        {item.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </SelectBox>
 
                         {/* 본인의 현재 위치 박스 */}
                         <MyAddress>
@@ -250,12 +288,21 @@ function MapPage() {
                         </HospitalBoxes> */}
 
                         <HospitalBoxes>
-                            {markerdata.map((hospital, index) => (
-                                <HospitalBox key={index}>
-                                    <p className='hospital_name'>{hospital.title}</p> {/* 병원 이름 */}
-                                    <p className='hospital_address'>{hospital.address}</p> {/* 병원 주소 */}
-                                </HospitalBox>
-                            ))}
+                            {filteredData
+                                .slice()
+                                .sort((a, b) => b.isLiked - a.isLiked)
+                                .map((hospital, index) => (
+                                    <HospitalBox key={index}>
+                                        <p className="hospital_name">{hospital.title}</p>
+                                        <p className="hospital_address">{hospital.address}</p>
+                                        <img
+                                            className="hospital_isLiked"
+                                            src={hospital.isLiked ? heart : heart_empty}
+                                            alt="heart"
+                                            onClick={() => onClickHeart(index)}
+                                        />
+                                    </HospitalBox>
+                                ))}
                         </HospitalBoxes>
                     </Body>
                 </BodyWrapper>
@@ -315,7 +362,7 @@ const StyledMapContainer = styled.div`
 const SelectBox = styled.div`
     margin-top: 1rem;
 
-    #department {
+    .department {
         height: 1.8rem;
         width: 9rem;
         border: 1px solid #FF4F4D;
@@ -380,6 +427,12 @@ const HospitalBox = styled.div`
     font-size: 14px;
     margin-top: -0.7rem;
     margin-left: 1rem;
+  }
+
+  .hospital_isLiked {
+    position: relative;
+    margin-left: 16rem;
+    top: -3.5rem;
   }
 `;
 
