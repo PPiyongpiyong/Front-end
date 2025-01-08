@@ -4,8 +4,6 @@ import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import logo from "../assets/logo.svg";
-import heart from "../assets/map/heart.svg";
-import heart_empty from "../assets/map/heart_empty.svg";
 import bar from "../assets/bottom_bar/bar.svg";
 import logo_icon from "../assets/bottom_bar/logo_icon.svg";
 import manual_icon from "../assets/bottom_bar/manual_icon.svg";
@@ -17,7 +15,7 @@ import my_icon from "../assets/bottom_bar/my_icon.svg";
 import markerImage from "../assets/map/marker.svg";
 import hospitalMarker from "../assets/map/hp_mark.svg";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
-import { markerdata as initialMarkerData } from '../data/markerData';
+import { markerdata } from '../data/markerData';
 
 // 모달 관련 import
 import Modal from './Modal';
@@ -100,7 +98,7 @@ function MapPage() {
 
     // 마커 클릭 시 해당 병원의 정보와 모달 열기
     const toggleModal = (index) => {
-        setSelectedHospital(initialMarkerData[index]); // 선택된 병원 정보 저장
+        setSelectedHospital(markerdata[index]); // 선택된 병원 정보 저장
         setOpenModal(index); // 해당 병원의 모달 열기
     };
 
@@ -114,17 +112,6 @@ function MapPage() {
     const goManual = () => navigate("/Manual");
     const goMap = () => navigate("/");
     const goChat = () => navigate("/Chat");
-
-    // 즐겨찾기 기능 구현
-    const [markerData, setMarkerData] = useState(initialMarkerData);
-
-    const onClickHeart = (index) => {
-      setMarkerData((prevData) =>
-        prevData.map((hospital, idx) =>
-          idx === index ? { ...hospital, isLiked: !hospital.isLiked } : hospital
-        )
-      );
-    };
 
     // selectBox 생성
     const selectList = [
@@ -151,8 +138,8 @@ function MapPage() {
       };
       
     const filteredData = selected === "진료과 선택" 
-    ? markerData 
-    : markerData.filter(hospital => hospital.department === selected);
+    ? markerdata 
+    : markerdata.filter(hospital => hospital.department === selected);
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -188,7 +175,7 @@ function MapPage() {
                                 )}
 
                                 {/* 병원 위치 마커 */}
-                                {initialMarkerData.map((marker, index) => (
+                                {filteredData.map((marker, index) => (
                                     <MapMarker
                                         key={index}
                                         position={{ lat: marker.lat, lng: marker.lng }}
@@ -292,18 +279,65 @@ function MapPage() {
                                 .slice()
                                 .sort((a, b) => b.isLiked - a.isLiked)
                                 .map((hospital, index) => (
-                                    <HospitalBox key={index}>
+                                    <HospitalBox key={index} onClick={() => toggleModal(index)} style={{ cursor: "pointer"}}>
                                         <p className="hospital_name">{hospital.title}</p>
                                         <p className="hospital_address">{hospital.address}</p>
-                                        <img
-                                            className="hospital_isLiked"
-                                            src={hospital.isLiked ? heart : heart_empty}
-                                            alt="heart"
-                                            onClick={() => onClickHeart(index)}
-                                        />
                                     </HospitalBox>
                                 ))}
                         </HospitalBoxes>
+
+                        {/* 선택된 병원에 대해 모달 표시 */}
+                        {openModal !== null && selectedHospital && (
+                            <Modal isOpen={openModal !== null} onClose={closeModal}>
+                                <div style={{marginTop: "40rem"}}>
+                                    {/* 전화 링크 수정 */}
+                                    <a 
+                                        href={`tel:${selectedHospital.tel}`} 
+                                        style={{
+                                            display: 'block',
+                                            textDecoration: 'none',
+                                        }}
+                                    >
+                                        <div 
+                                            style={{ 
+                                                width: '20rem', 
+                                                height: '4rem', 
+                                                background: '#474747', 
+                                                borderRadius: '10px', 
+                                                color: '#6985FF', 
+                                                fontSize: '23px', 
+                                                display: 'flex',             
+                                                justifyContent: 'center',    
+                                                alignItems: 'center',        
+                                                textAlign: 'center',
+                                                marginBottom: '1rem',
+                                            }}
+                                        >
+                                            전화 {selectedHospital.tel}
+                                        </div>
+                                    </a>
+                                        
+                                    <div 
+                                        style={{ 
+                                            width: '20rem', 
+                                            height: '4rem', 
+                                            background: '#474747', 
+                                            borderRadius: '10px', 
+                                            color: '#FF5B59', 
+                                            fontSize: '23px', 
+                                            fontWeight: 'bold',
+                                            display: 'flex',             
+                                            justifyContent: 'center',    
+                                            alignItems: 'center',        
+                                            textAlign: 'center'          
+                                        }} 
+                                        onClick={closeModal}
+                                    >
+                                        취소
+                                    </div>
+                                </div>
+                            </Modal>
+                        )}
                     </Body>
                 </BodyWrapper>
                 <Footer>
@@ -427,12 +461,6 @@ const HospitalBox = styled.div`
     font-size: 14px;
     margin-top: -0.7rem;
     margin-left: 1rem;
-  }
-
-  .hospital_isLiked {
-    position: relative;
-    margin-left: 16rem;
-    top: -3.5rem;
   }
 `;
 
