@@ -5,7 +5,6 @@ export const markerdata = [
     lng: 127.129114,
     tel: '010-1111-2222',
     address: "경기도 구리시 경춘로 153",
-    isLiked: false,
     department: '산부인과'
   },
   {
@@ -14,7 +13,6 @@ export const markerdata = [
     lng: 127.130983,
     tel: '010-2222-2222',
     address: "경기도 구리시 검배로 120",
-    isLiked: false,
     department: '외과과'
   },
   {
@@ -23,7 +21,6 @@ export const markerdata = [
     lng: 127.131412,
     tel: '010-3333-2222',
     address: "경기도 구리시 수택동 486-10",
-    isLiked: false,
     department: '내과'
   },
   {
@@ -40,7 +37,6 @@ export const markerdata = [
     lng: 127.131937,
     tel: '010-5555-2222',
     address: "경기도 구리시 인창동 663",
-    isLiked: false,
     department: '가정의학과'
   },
 ];
