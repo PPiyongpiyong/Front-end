@@ -10,6 +10,7 @@ import manual_icon from "../assets/bottom_bar/manual_icon.svg";
 import map_icon from "../assets/bottom_bar/map_icon.svg";
 import chat_icon from "../assets/bottom_bar/chat.svg";
 import my_icon from "../assets/bottom_bar/my_icon.svg";
+import axios from 'axios';
 
 // 카카오 맵 구현 관련 import
 import markerImage from "../assets/map/marker.svg";
@@ -140,6 +141,54 @@ function MapPage() {
     const filteredData = selected === "진료과 선택" 
     ? markerdata 
     : markerdata.filter(hospital => hospital.department === selected);
+
+
+    const [datas, setDatas] = useState([]);
+    useEffect(() => {
+        const fetchData = async () => {
+          try {
+            // 로그인에서 저장된 토큰 가져오기
+            // const token = localStorage.getItem("token");
+            const response = await axios.get(
+                "/api/v1/map/hospital",
+              {
+                headers: {
+                //   Authorization: `Token ${token}`,
+                  "Content-Type": "multipart/form-data",
+                },
+              }
+            );
+    
+            console.log("hi");
+            console.log(response.data.result);
+            setDatas(response.data.result);
+            // console.log(token);
+          } catch (error) {
+            if (error.response) {
+              // 서버가 응답한 상태 코드가 2xx 범위를 벗어난 경우
+              console.error(
+                "Server responded with a non-2xx status",
+                error.response.status,
+                error.response.data
+              );
+            } else if (error.request) {
+              // 요청은 보냈지만 응답을 받지 못한 경우
+              console.error(
+                "No response received from the server. Check your network connection.",
+                error.request
+              );
+            } else {
+              // 요청을 보내기 전에 발생한 오류
+              console.error("Error before sending the request", error.message);
+            }
+      
+            // 서버가 응답하지 않았거나 네트워크 오류 발생 시 추가 정보 출력
+            console.error("Full Error Object:", error);
+          }
+        };
+      
+        fetchData();
+      }, []);
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -400,6 +449,7 @@ const SelectBox = styled.div`
         height: 1.8rem;
         width: 9rem;
         border: 1px solid #FF4F4D;
+        background-color: white;
         border-radius: 10px;   
         padding-left : 5px;
         margin-left: 11.5rem;
