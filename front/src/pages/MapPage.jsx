@@ -31,7 +31,7 @@ function MapPage() {
                 // const token = localStorage.getItem("token");
                 const y=localStorage.getItem("lat");
                 const x=localStorage.getItem("lng");
-                const token = 'eyJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiIyIiwicm9sZXMiOltdLCJpYXQiOjE3MzYzOTQxOTIsImV4cCI6MTczNjQ4MDU5Mn0.BkOdVtR9SQPPpfhbGDaqpeoE6E-xJwsuBdbtFyxrBEU';
+                const token = 'eyJ0eXBlIjoiYWNjZXNzIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiIxIiwicm9sZXMiOltdLCJpYXQiOjE3MzY0ODcyMDksImV4cCI6MTczNjU3MzYwOX0.4OKrrW_RH1d-XQ8ymBI1mPA6OXbMLIJcCykR1CSVO5c';
     
                 const response = await axios.get(`/api/v1/map/hospital`, {
                     headers: {
@@ -190,7 +190,7 @@ function MapPage() {
         {name: "가정의학과"},
     ];
 
-    const categoryName = localStorage.getItem("categoryName") === null ? "진료과 선택" : localStorage.getItem("categoryName");
+    const categoryName = localStorage.getItem("categoryName") || "진료과 선택";
 
     const [selected, setSelected] = useState(categoryName);
 
@@ -198,13 +198,7 @@ function MapPage() {
         const selectedValue = e.target.value;
         setSelected(selectedValue);
         localStorage.setItem("categoryName", selectedValue);
-        console.log(`${selectedValue} 선택함`); 
-        window.location.reload();
       };
-      
-    const filteredData = selected === "진료과 선택" 
-    ? datas 
-    : datas.filter(hospital => hospital.department === selected);
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
