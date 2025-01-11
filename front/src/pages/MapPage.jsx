@@ -198,6 +198,7 @@ function MapPage() {
         const selectedValue = e.target.value;
         setSelected(selectedValue);
         localStorage.setItem("categoryName", selectedValue);
+        window.location.reload();
       };
 
     return (
