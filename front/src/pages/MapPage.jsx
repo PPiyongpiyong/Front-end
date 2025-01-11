@@ -23,7 +23,7 @@ import Modal from './Modal';
 function MapPage() {
 
         // get method
-        const [datas, setDatas] = useState([]);
+        const [datas, setDatas] = useState([]); 
         useEffect(() => {
             const fetchData = async () => {
               try {

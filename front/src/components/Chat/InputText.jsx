@@ -10,8 +10,10 @@ const InputComponent = styled(BoxComponent)`
   line-height: 1;
   background: #fff;
   border: 1px solid #333;
-  border-radius: 40px;
+  border-radius: 15px;
   box-sizing: border-box;
+  padding-left: 70px;
+  padding-right: 85px;
 `;
 
 const InputText = ({ placeholder, onChange, value, ...props }) => {

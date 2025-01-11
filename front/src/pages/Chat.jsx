@@ -1,6 +1,7 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import styled from "styled-components";
-import InputText from "../components/InputText";
+import InputText from "../components/Chat/InputText";
+import Message from "../components/Chat/Message";
 import { Container, BodyWrapper, Body } from "../styles/Global";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -15,11 +16,7 @@ const Chat = () => {
   const [messages, setMessages] = useState([]); // 메시지 목록
   const messageEndRef = useRef(null); // 스크롤 조정
 
-  // 음성인식 관련 설정
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
-
-  // 음성인식 가능 여부 확인
-  const isBrowserSupported = SpeechRecognition.browserSupportsSpeechRecognition();
 
   // 음성인식 토글 함수
   const toggleListening = useCallback(() => {
@@ -37,13 +34,17 @@ const Chat = () => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  useEffect(() => {
+    scrollBottom();
+  }, [messages]);
+
   // 메시지 입력 처리
   const handleInputChange = useCallback((value) => {
     setInput(value);
   }, []);
 
   // 메시지 추가 및 전송 처리
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!input.trim()) {
       alert("메시지를 입력하세요!");
       return;
@@ -53,26 +54,25 @@ const Chat = () => {
     const userMessage = {
       role: "user",
       content: input.trim(),
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
 
-    // 임시 챗봇 응답
-    const botMessage = {
-      role: "assistant",
-      content: `이것은 AI의 임시 응답입니다: "${input.trim()}"에 대한 답변입니다.`,
-      timestamp: new Date().toLocaleTimeString(),
-    };
+    // 메시지 추가
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
 
-    // 메시지 업데이트
-    setMessages((prevMessages) => [...prevMessages, userMessage, botMessage]);
     setInput(""); // 입력값 초기화
     scrollBottom(); // 대화창 하단으로 스크롤 이동
-  };
 
-  // 브라우저 지원 여부 체크
-  if (!isBrowserSupported) {
-    return <span>Browser doesn't support speech recognition.</span>;
-  }
+    // AI 응답 생성 (임시)
+    const botMessage = {
+      role: "assistant",
+      content: `이것은 AI의 임시 응답입니다: "${userMessage.content}"에 대한 답변입니다.`,
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    };
+
+    // AI 응답 추가
+    setMessages((prevMessages) => [...prevMessages, botMessage]);
+  };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -90,11 +90,12 @@ const Chat = () => {
           <Body>
             <HomepageMessage>
               {messages.map((message, idx) => (
-                <Message key={idx}>
-                  <span className="role">{message.role === "user" ? "👤" : "🚨"}:</span>
-                  <span className="content">{message.content}</span>
-                  <span className="timestamp">{message.timestamp}</span>
-                </Message>
+                <Message
+                  key={idx}
+                  $role={message.role}
+                  content={message.content}
+                  timestamp={message.timestamp}
+                />
               ))}
               <div ref={messageEndRef} /> {/* 대화창 끝을 나타내는 요소 */}
             </HomepageMessage>
@@ -109,8 +110,7 @@ const Chat = () => {
                   value={input}
                   onChange={(e) => handleInputChange(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.ctrlKey && !e.shiftKey && !e.altKey) {
-                      if (e.keyCode === 229) return;
+                    if (e.key === "Enter") {
                       e.preventDefault();
                       handleSendMessage();
                     }
@@ -151,37 +151,13 @@ const HomepageMessage = styled.div`
   }
 `;
 
-const Message = styled.div`
-  padding: 10px;
-  display: flex;
-  justify-content: space-between;
-  border: 1px solid grey;
-  border-radius: 15px;
-  margin-bottom: 10px;
-
-  .role {
-    font-weight: bold;
-    color: #555;
-  }
-
-  .content {
-    flex: 1;
-    margin: 0 10px;
-  }
-
-  .timestamp {
-    font-size: 0.8em;
-    color: #999;
-  }
-`;
-
 const HomepageInput = styled.div`
   position: fixed;
   left: 0;
   bottom: 0;
   padding: 6em 2em 2em 2em;
   width: 100%;
-  background: linear-gradient(0deg, #fff 55%, transparent);
+  background: linear-gradient(0deg, #fff 25%, transparent);
   box-sizing: border-box;
 `;
 
@@ -189,6 +165,7 @@ const MessageInput = styled.div`
   position: relative;
   margin: auto;
   max-width: 390px;
+  input:focus {outline: none;} 
 
   .speech {
     position: absolute;
@@ -198,7 +175,7 @@ const MessageInput = styled.div`
     height: 40px;
     background: #fff6f6;
     border: 1px solid #333;
-    border-radius: 52px;
+    border-radius: 15px;
     cursor: pointer;
   }
 
@@ -216,7 +193,7 @@ const MessageInput = styled.div`
     height: 40px;
     background: #fff6f6;
     border: 1px solid #333;
-    border-radius: 52px;
+    border-radius: 15px;
     cursor: pointer;
   }
 `;
