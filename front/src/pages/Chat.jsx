@@ -1,146 +1,223 @@
-import { Container, BodyWrapper, Body } from '../styles/Global';
+import React, { useState, useCallback, useRef } from "react";
+import styled from "styled-components";
+import InputText from "../components/InputText";
+import { Container, BodyWrapper, Body } from "../styles/Global";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import TextareaAutosize from 'react-textarea-autosize';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import React, { useState } from 'react';
-import styled from "styled-components";
 import back from "../assets/chat/back.svg";
-import speech from "../assets/chat/speech.svg";
-import btn from "../assets/chat/sendbox.svg";
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
-function Chat() {
-    const navigate = useNavigate();
+const Chat = () => {
+  const navigate = useNavigate();
+  const backBtn = () => navigate("/");
 
-    const backBtn = () => {
-        navigate("/");
-    };
+  const [input, setInput] = useState(""); // 입력된 텍스트 값
+  const [messages, setMessages] = useState([]); // 메시지 목록
+  const messageEndRef = useRef(null); // 스크롤 조정
 
-    // stt 기능 구현을 위해 정의
-    const { 
-      transcript, // stt 녹음한 내용을 담는 변수
-      listening, // stt 녹음
-      browserSupportsSpeechRecognition 
-    } = useSpeechRecognition();
+  // 음성인식 관련 설정
+  const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
-    // input 상태 관리
-    const [inputValue, setInputValue] = useState("");
-  
-    if (!browserSupportsSpeechRecognition) {
-      return <span>Browser doesn't support speech recognition.</span>;
-    }
-  
-    // 녹음 시작
-    const startListening = () => {
-      SpeechRecognition.startListening({ continuous: true, language: "ko" });
-    };
-  
-    // 녹음 종료 후 텍스트 반영
-    const stopListening = () => {
+  // 음성인식 가능 여부 확인
+  const isBrowserSupported = SpeechRecognition.browserSupportsSpeechRecognition();
+
+  // 음성인식 토글 함수
+  const toggleListening = useCallback(() => {
+    if (listening) {
       SpeechRecognition.stopListening();
-      setInputValue(transcript); // 녹음된 내용을 input 값에 설정
+      setInput(transcript); // 음성인식된 내용을 Input에 반영
+    } else {
+      resetTranscript(); // 이전 음성인식 데이터 초기화
+      SpeechRecognition.startListening({ language: "ko-KR", continuous: true });
+    }
+  }, [listening, transcript, resetTranscript]);
+
+  // 메시지 스크롤 조정 함수
+  const scrollBottom = () => {
+    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // 메시지 입력 처리
+  const handleInputChange = useCallback((value) => {
+    setInput(value);
+  }, []);
+
+  // 메시지 추가 및 전송 처리
+  const handleSendMessage = () => {
+    if (!input.trim()) {
+      alert("메시지를 입력하세요!");
+      return;
+    }
+
+    // 사용자 메시지 추가
+    const userMessage = {
+      role: "user",
+      content: input.trim(),
+      timestamp: new Date().toLocaleTimeString(),
     };
 
-    const handleSpeechClick = () => {
-        if (listening) {
-          stopListening();
-        } else {
-          startListening();
-        }
+    // 임시 챗봇 응답
+    const botMessage = {
+      role: "assistant",
+      content: `이것은 AI의 임시 응답입니다: "${input.trim()}"에 대한 답변입니다.`,
+      timestamp: new Date().toLocaleTimeString(),
     };
 
-    return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <Container>
-                <BodyWrapper>
-                    <Header>
-                        <img className="back" src={back} style={{ cursor: "pointer" }} alt="back" onClick={backBtn} />
-                    </Header>
-                    <Body>
-                    <AIChatBox>
-                    안녕하세요!
-                    챗봇에게 궁금한 점을 물어보세요.
-                    </AIChatBox>
-                    <UserChatBox>
-                    절단 사고가 났을 때 어떻게 해야 하나요?
-                    </UserChatBox>
-                    <div style={{ position: "absolute", marginBottom: "100px" }}> 
-                        <StyledTextareaAutosize
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        placeholder={listening ? "녹음 중..." : "질문을 입력하세요."}
-                        />
-                        <div style={{ position: "absolute", right: "1rem", top: "-0.65rem" }}>
-                            <img
-                            className="speech"
-                            src={speech}
-                            alt="speech"
-                            onClick={handleSpeechClick} // 녹음 시작 & 중지 토글
-                            style={{ position: 'absolute', cursor: "pointer", left: "1.8rem", top: "48.5rem" }}
-                            />
-                            <img className="btn"
-                            src={btn}
-                            alt='btn'
-                            style={{ position:'absolute', cursor: "pointer", left: "19.7rem", top: "48rem" }}/>
-                        </div>
-                    </div>
-                    </Body>
-                </BodyWrapper>
-            </Container>
-        </motion.div>
-    );
+    // 메시지 업데이트
+    setMessages((prevMessages) => [...prevMessages, userMessage, botMessage]);
+    setInput(""); // 입력값 초기화
+    scrollBottom(); // 대화창 하단으로 스크롤 이동
+  };
+
+  // 브라우저 지원 여부 체크
+  if (!isBrowserSupported) {
+    return <span>Browser doesn't support speech recognition.</span>;
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <Container>
+        <BodyWrapper>
+          <Header>
+            <img
+              className="back"
+              src={back}
+              style={{ cursor: "pointer" }}
+              alt="back"
+              onClick={backBtn}
+            />
+          </Header>
+          <Body>
+            <HomepageMessage>
+              {messages.map((message, idx) => (
+                <Message key={idx}>
+                  <span className="role">{message.role === "user" ? "👤" : "🚨"}:</span>
+                  <span className="content">{message.content}</span>
+                  <span className="timestamp">{message.timestamp}</span>
+                </Message>
+              ))}
+              <div ref={messageEndRef} /> {/* 대화창 끝을 나타내는 요소 */}
+            </HomepageMessage>
+
+            <HomepageInput>
+              <MessageInput>
+                <button className="speech" onClick={toggleListening}>
+                  {listening ? "중지" : "시작"}
+                </button>
+                <InputText
+                  placeholder={"메세지를 입력하세요"}
+                  value={input}
+                  onChange={(e) => handleInputChange(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                      if (e.keyCode === 229) return;
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
+                />
+                <button className="send" onClick={handleSendMessage}>
+                  보내기
+                </button>
+              </MessageInput>
+            </HomepageInput>
+          </Body>
+        </BodyWrapper>
+      </Container>
+    </motion.div>
+  );
 };
 
 const Header = styled.header`
-    .back {
-        position: absolute;
-        margin-top: 1.3rem;
-        margin-left: -10.8rem;
-    }
-    margin-bottom: 5rem;
+  .back {
+    position: absolute;
+    margin-top: 1.3rem;
+    margin-left: -10.8rem;
+  }
+  margin-bottom: 5rem;
 `;
 
-const AIChatBox = styled.div`
-    position: relative;
-    width: 20rem;
-    height: auto;
-    background-color: #fff6f6;
-    border: 1px solid #FF4F4D;
-    border-radius: 0 20px 20px 20px;
-    align-items: left;
-    color: #FF4F4D;
-    padding: 10px;
-    text-align: left;
+const HomepageMessage = styled.div`
+  margin: auto;
+  padding: 0 1em;
+  height: 840px; /* 기본 높이 설정 */
+  margin-bottom: 20px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+  }
 `;
 
-const UserChatBox = styled.div`
-    position: relative;
-    width: 20rem;
-    height: auto;
-    background-color: white;
-    border: 1px solid #FF4F4D;
-    border-radius: 20px 0px 20px 20px;
-    margin-top: 1.1rem;
-    align-items: left;
-    color: #FF4F4D;
-    padding: 10px;
+const Message = styled.div`
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid grey;
+  border-radius: 15px;
+  margin-bottom: 10px;
+
+  .role {
+    font-weight: bold;
+    color: #555;
+  }
+
+  .content {
+    flex: 1;
+    margin: 0 10px;
+  }
+
+  .timestamp {
+    font-size: 0.8em;
+    color: #999;
+  }
 `;
 
-const StyledTextareaAutosize = styled(TextareaAutosize)`
-  position: absolute;
-  top: 47rem;
-  left: -0.1rem;
-  width: 16.6rem;
-  background-color: white;
-  border: 1px solid #FF4F4D;
-  border-radius: 20px 20px 20px 20px;
-  padding : 0.6rem 2.5rem 0.6rem 2.5rem;
-  font-size: 18px;
-  resize: none;
-  outline: none;
+const HomepageInput = styled.div`
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  padding: 6em 2em 2em 2em;
+  width: 100%;
+  background: linear-gradient(0deg, #fff 55%, transparent);
+  box-sizing: border-box;
+`;
 
-  ::-webkit-scrollbar {
-    display: none;
+const MessageInput = styled.div`
+  position: relative;
+  margin: auto;
+  max-width: 390px;
+
+  .speech {
+    position: absolute;
+    left: 6px;
+    bottom: 6px;
+    padding: 0 12px;
+    height: 40px;
+    background: #fff6f6;
+    border: 1px solid #333;
+    border-radius: 52px;
+    cursor: pointer;
+  }
+
+  input {
+    display: block;
+    max-width: 800px;
+    margin: auto;
+  }
+
+  .send {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    padding: 0 12px;
+    height: 40px;
+    background: #fff6f6;
+    border: 1px solid #333;
+    border-radius: 52px;
+    cursor: pointer;
   }
 `;
 

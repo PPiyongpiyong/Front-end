@@ -23,8 +23,18 @@ export const Container = styled.div`
     }
 `;
 
+const Header = styled.header`
+  position: relative;
+  .logo {
+    position: absolute;
+    margin-top: 1.3rem;
+    margin-left: -10.8rem;
+  }
+`;
+
 export const BodyWrapper = styled.div`
-    min-height: calc(100vh - 145px);
+    margin-top: 6rem; 
+    min-height: calc(100vh - 6rem); 
 `;
 
 export const Body = styled.div`
