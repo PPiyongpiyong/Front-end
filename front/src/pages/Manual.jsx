@@ -13,6 +13,28 @@ import my_icon from "../assets/bottom_bar/my_icon.svg";
 import SearchBar from '../components/search_bar/SearchBar';
 import ManualBox from '../components/box/ManualBox';
 
+// 더미 데이터
+const dummyData = [
+  {
+    category: "general",
+    emergencyName: "심정지(CPR)",
+    manualSummaries: "심정지 상태에서 CPR을 하는 방법에 대한 매뉴얼입니다.",
+    thumbnail: "https://via.placeholder.com/100",
+  },
+  {
+    category: "injury",
+    emergencyName: "기절/의식 상실",
+    manualSummaries: "기절이나 의식 상실 상태에 대처하는 방법을 설명합니다.",
+    thumbnail: "https://via.placeholder.com/100",
+  },
+  {
+    category: "disease",
+    emergencyName: "호흡곤란",
+    manualSummaries: "호흡이 어려운 상태에서 대처하는 방법을 설명합니다.",
+    thumbnail: "https://via.placeholder.com/100",
+  }
+];
+
 function Manual() {
   const [activeTab, setActiveTab] = useState('general');
   const [manualContent, setManualContent] = useState([]);
