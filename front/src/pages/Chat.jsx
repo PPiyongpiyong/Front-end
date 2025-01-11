@@ -6,6 +6,7 @@ import { Container, BodyWrapper, Body } from "../styles/Global";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import back from "../assets/chat/back.svg";
+import { RiSendPlaneFill } from "react-icons/ri";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
 const Chat = () => {
@@ -117,7 +118,7 @@ const Chat = () => {
                   }}
                 />
                 <button className="send" onClick={handleSendMessage}>
-                  보내기
+                  <RiSendPlaneFill style={{color: "white"}} />
                 </button>
               </MessageInput>
             </HomepageInput>
@@ -187,13 +188,13 @@ const MessageInput = styled.div`
 
   .send {
     position: absolute;
-    right: 6px;
-    bottom: 6px;
+    right: 11px;
+    bottom: 9px;
     padding: 0 12px;
-    height: 40px;
-    background: #fff6f6;
-    border: 1px solid #333;
-    border-radius: 15px;
+    height: 35px;
+    background: #ff7775;
+    border: none;
+    border-radius: 150px;
     cursor: pointer;
   }
 `;

@@ -11,7 +11,6 @@ export const Container = styled.div`
     -ms-overflow-style: none;
     scrollbar-width: none;
     align-items: center;
-    border: 1px solid;
     overflow-x: hidden;
 
     @media (hover: hover) {
