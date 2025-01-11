@@ -1,4 +1,4 @@
-import { Container, BodyWrapper, Body } from '../styles/Global';
+import { Container, BodyWrapper } from '../styles/Global';
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import React from 'react';
@@ -10,6 +10,7 @@ import manual_icon from "../assets/bottom_bar/manual_icon.svg";
 import map_icon from "../assets/bottom_bar/map_icon.svg";
 import chat_icon from "../assets/bottom_bar/chat.svg";
 import my_icon from "../assets/bottom_bar/my_icon.svg";
+import SearchBar from '../components/search_bar/SearchBar';  
 
 function Manual() {
     const navigate = useNavigate();
@@ -20,10 +21,10 @@ function Manual() {
 
     const goManual = () => {
         navigate("/Manual");
-      };
+    };
 
     const goMap = () => {
-        navigate("/");
+        navigate("/");  
     };  
 
     const goChat = () => {
@@ -37,8 +38,16 @@ function Manual() {
                     <Header>
                         <img className="logo" src={logo} alt="logo" />
                     </Header>
-                    <Body>
-                    </Body>
+                    <SearchArea>
+                        <SearchBar/>
+                    </SearchArea>
+                    <TabContainer>
+                        <Tab>
+
+                            <Content/>
+                        </Tab>
+
+                    </TabContainer>
                 </BodyWrapper>
                 <Footer>
                     <Base>
@@ -48,11 +57,11 @@ function Manual() {
                             alt="footer_bar"
                         />
                     </Base>
-                        <StyledIcon src={map_icon} alt="map_icon" style={{marginLeft: "-10rem"}} onClick={goMap}/>
-                        <StyledIcon src={manual_icon} alt="manual_icon" style={{marginLeft: "-6rem"}} onClick={goManual}/>
-                        <StyledLogoIcon src={logo_icon} alt="logo_icon" /> 
-                        <StyledIcon src={chat_icon} alt="chat_icon" style={{marginLeft: "3.7rem"}} onClick={goChat}/>
-                        <StyledIcon src={my_icon} alt="my_icon" style={{marginLeft: "8rem", marginTop: "-3.5rem"}} onClick={goMy}/>
+                    <StyledIcon src={map_icon} alt="map_icon" style={{marginLeft: "-10rem"}} onClick={goMap} />
+                    <StyledIcon src={manual_icon} alt="manual_icon" style={{marginLeft: "-6rem"}} onClick={goManual} />
+                    <StyledLogoIcon src={logo_icon} alt="logo_icon" /> 
+                    <StyledIcon src={chat_icon} alt="chat_icon" style={{marginLeft: "3.7rem"}} onClick={goChat} />
+                    <StyledIcon src={my_icon} alt="my_icon" style={{marginLeft: "8rem", marginTop: "-3.5rem"}} onClick={goMy} />
                 </Footer>
             </Container>
         </motion.div>
@@ -60,6 +69,7 @@ function Manual() {
 };
 
 const Header = styled.header`
+    position: relative;
     .logo {
         position: absolute;
         margin-top: 1.3rem;
@@ -67,15 +77,43 @@ const Header = styled.header`
     }
 `;
 
+const SearchArea = styled.div`
+    margin-top: 80px;  
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+`;
+
 const Footer = styled.div`
-  position: absolute;
-  left: 0rem;
-  bottom: 0;
-  border: none;
-  margin: 0;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    border: none;
+    margin: 0;
 `;
 
 const Base = styled.div``;
+
+const TabContainer = styled.div`
+  display: flex;
+  border-bottom: 2px solid #FF4F4D;
+  margin-bottom: 20px;
+`;
+
+const Tab = styled.div`
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: ${(props) => (props.active ? 'bold' : 'normal')};
+  color: ${(props) => (props.active ? '#E60400' : '#333')};
+  border-bottom: ${(props) => (props.active ? '2px solid #E60400' : 'none')};
+  transition: all 0.3s;
+`;
+
+const Content = styled.div`
+  margin-top: 20px;
+  font-size: 16px;
+`;
 
 // logo icon만 변경하고 싶어서 styled-component 설정해줌
 const StyledLogoIcon = styled.img`
@@ -89,6 +127,5 @@ const StyledIcon = styled.img`
   position: absolute;
   margin-top: -3.7rem;
 `;
-
 
 export default Manual;
