@@ -5,14 +5,32 @@ import { Container, BodyWrapper, Body } from "../styles/Global";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import back from "../assets/chat/back.svg";
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
 const Chat = () => {
   const navigate = useNavigate();
   const backBtn = () => navigate("/");
 
   const [input, setInput] = useState(""); // 입력된 텍스트 값
-  const [messages, setMessages] = useState([]); // 메시지 목록(작성한 내용들 저장해야 하므로 배열로 저장)
+  const [messages, setMessages] = useState([]); // 메시지 목록
   const messageEndRef = useRef(null); // 스크롤 조정
+
+  // 음성인식 관련 설정
+  const { transcript, listening, resetTranscript } = useSpeechRecognition();
+
+  // 음성인식 가능 여부 확인
+  const isBrowserSupported = SpeechRecognition.browserSupportsSpeechRecognition();
+
+  // 음성인식 토글 함수
+  const toggleListening = useCallback(() => {
+    if (listening) {
+      SpeechRecognition.stopListening();
+      setInput(transcript); // 음성인식된 내용을 Input에 반영
+    } else {
+      resetTranscript(); // 이전 음성인식 데이터 초기화
+      SpeechRecognition.startListening({ language: "ko-KR", continuous: true });
+    }
+  }, [listening, transcript, resetTranscript]);
 
   // 메시지 스크롤 조정 함수
   const scrollBottom = () => {
@@ -25,21 +43,36 @@ const Chat = () => {
   }, []);
 
   // 메시지 추가 및 전송 처리
-  // .trim() 공백 제거 함수
   const handleSendMessage = () => {
     if (!input.trim()) {
       alert("메시지를 입력하세요!");
       return;
     }
 
-    // 메시지 추가
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { role: "user", content: input.trim(), timestamp: new Date().toLocaleTimeString() },
-    ]);
+    // 사용자 메시지 추가
+    const userMessage = {
+      role: "user",
+      content: input.trim(),
+      timestamp: new Date().toLocaleTimeString(),
+    };
+
+    // 임시 챗봇 응답
+    const botMessage = {
+      role: "assistant",
+      content: `이것은 AI의 임시 응답입니다: "${input.trim()}"에 대한 답변입니다.`,
+      timestamp: new Date().toLocaleTimeString(),
+    };
+
+    // 메시지 업데이트
+    setMessages((prevMessages) => [...prevMessages, userMessage, botMessage]);
     setInput(""); // 입력값 초기화
     scrollBottom(); // 대화창 하단으로 스크롤 이동
   };
+
+  // 브라우저 지원 여부 체크
+  if (!isBrowserSupported) {
+    return <span>Browser doesn't support speech recognition.</span>;
+  }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -58,7 +91,7 @@ const Chat = () => {
             <HomepageMessage>
               {messages.map((message, idx) => (
                 <Message key={idx}>
-                  <span className="role">{message.role === "user" ? "Me" : "Bot"}:</span>
+                  <span className="role">{message.role === "user" ? "👤" : "🚨"}:</span>
                   <span className="content">{message.content}</span>
                   <span className="timestamp">{message.timestamp}</span>
                 </Message>
@@ -68,6 +101,9 @@ const Chat = () => {
 
             <HomepageInput>
               <MessageInput>
+                <button className="speech" onClick={toggleListening}>
+                  {listening ? "중지" : "시작"}
+                </button>
                 <InputText
                   placeholder={"메세지를 입력하세요"}
                   value={input}
@@ -117,10 +153,11 @@ const HomepageMessage = styled.div`
 
 const Message = styled.div`
   padding: 10px;
-  border-bottom: 1px solid #eee;
   display: flex;
   justify-content: space-between;
-  
+  border: 1px solid grey;
+  border-radius: 15px;
+  margin-bottom: 10px;
 
   .role {
     font-weight: bold;
@@ -152,6 +189,18 @@ const MessageInput = styled.div`
   position: relative;
   margin: auto;
   max-width: 390px;
+
+  .speech {
+    position: absolute;
+    left: 6px;
+    bottom: 6px;
+    padding: 0 12px;
+    height: 40px;
+    background: #fff6f6;
+    border: 1px solid #333;
+    border-radius: 52px;
+    cursor: pointer;
+  }
 
   input {
     display: block;
