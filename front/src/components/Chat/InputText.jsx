@@ -12,8 +12,8 @@ const InputComponent = styled(BoxComponent)`
   color: #FF4F4D;
   border-radius: 20px;
   box-sizing: border-box;
-  padding-left: 70px;
-  padding-right: 85px;
+  padding-left: 45px;
+  padding-right: 55px;
 `;
 
 const InputText = ({ placeholder, onChange, value, ...props }) => {

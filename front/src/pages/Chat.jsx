@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import back from "../assets/chat/back.svg";
 import { RiSendPlaneFill } from "react-icons/ri";
+import { HiSpeakerWave } from "react-icons/hi2";
+import { HiSpeakerXMark } from "react-icons/hi2";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
 const Chat = () => {
@@ -104,10 +106,14 @@ const Chat = () => {
             <HomepageInput>
               <MessageInput>
                 <button className="speech" onClick={toggleListening}>
-                  {listening ? "중지" : "시작"}
+                  {listening ? (
+                    <HiSpeakerXMark style={{ color: "#FF4F4D", marginLeft: "-11px" }} size={25} />
+                  ) : (
+                    <HiSpeakerWave style={{ color: "#FF4F4D", marginLeft: "-11px" }} size={25} />
+                  )}
                 </button>
                 <InputText
-                  placeholder={"메세지를 입력하세요"}
+                  placeholder={listening ? "녹음 중..." : "메시지를 입력하세요"}
                   value={input}
                   onChange={(e) => handleInputChange(e.target.value)}
                   onKeyDown={(e) => {
@@ -118,7 +124,7 @@ const Chat = () => {
                   }}
                 />
                 <button className="send" onClick={handleSendMessage}>
-                  <RiSendPlaneFill style={{color: "white"}} />
+                  <RiSendPlaneFill style={{ color: "white" }} size={16} />
                 </button>
               </MessageInput>
             </HomepageInput>
@@ -170,14 +176,17 @@ const MessageInput = styled.div`
 
   .speech {
     position: absolute;
-    left: 6px;
-    bottom: 6px;
+    left: 14px;
+    bottom: 10px;
     padding: 0 12px;
-    height: 40px;
-    background: #fff6f6;
-    border: 1px solid #333;
+    height: 30px;
+    width: 30px;
+    background-color: transparent;
+    border: none;
     border-radius: 15px;
     cursor: pointer;
+    justify-content: center;
+    align-items: center;
   }
 
   input {
@@ -190,13 +199,18 @@ const MessageInput = styled.div`
     position: absolute;
     right: 11px;
     bottom: 9px;
-    padding: 0 12px;
+    width: 35px; 
     height: 35px;
     background: #ff7775;
     border: none;
-    border-radius: 150px;
+    border-radius: 50%; 
     cursor: pointer;
-  }
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0px 0px 5px 0px rgba(69,66,66,0.75);
+    
+}
 `;
 
 export default Chat;
