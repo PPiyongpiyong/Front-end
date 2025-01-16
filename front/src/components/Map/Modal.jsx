@@ -1,4 +1,4 @@
-import "../styles/Modal.css";
+import "../../styles/Modal.css";
 
 const Modal = ({ isOpen, children }) => {
   if (!isOpen) return null; // 모달이 열리지 않으면 아무 것도 렌더링하지 않음

@@ -18,7 +18,7 @@ import hospitalMarker from "../assets/map/hp_mark.svg";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
 
 // 모달 관련 import
-import Modal from './Modal';
+import HospitalModal from "../components/Map/HospitalModal";
 
 function MapPage() {
 
@@ -83,7 +83,7 @@ function MapPage() {
             lat: 37.524877465547, 
             lng: 127.10788678005,
         },
-        address: "", // 주소명을 저장할 상태
+        address: "", 
         errMsg: null,
         isLoading: true,
     });
@@ -253,57 +253,12 @@ function MapPage() {
                                 ))}
                             </Map>
 
-                            {/* 선택된 병원에 대해 모달 표시 */}
                             {openModal !== null && selectedHospital && (
-                                <Modal isOpen={openModal !== null} onClose={closeModal}>
-                                    <div style={{marginTop: "40rem"}}>
-                                        {/* 전화 링크 수정 */}
-                                        <a 
-                                            href={`tel:${selectedHospital.tel}`} 
-                                            style={{
-                                                display: 'block',
-                                                textDecoration: 'none',
-                                            }}
-                                        >
-                                            <div 
-                                                style={{ 
-                                                    width: '20rem', 
-                                                    height: '4rem', 
-                                                    background: '#474747', 
-                                                    borderRadius: '10px', 
-                                                    color: '#6985FF', 
-                                                    fontSize: '23px', 
-                                                    display: 'flex',             
-                                                    justifyContent: 'center',    
-                                                    alignItems: 'center',        
-                                                    textAlign: 'center',
-                                                    marginBottom: '1rem',
-                                                }}
-                                            >
-                                                전화 {selectedHospital.tel}
-                                            </div>
-                                        </a>
-                                        
-                                        <div 
-                                            style={{ 
-                                                width: '20rem', 
-                                                height: '4rem', 
-                                                background: '#474747', 
-                                                borderRadius: '10px', 
-                                                color: '#FF5B59', 
-                                                fontSize: '23px', 
-                                                fontWeight: 'bold',
-                                                display: 'flex',             
-                                                justifyContent: 'center',    
-                                                alignItems: 'center',        
-                                                textAlign: 'center'          
-                                            }} 
-                                            onClick={closeModal}
-                                        >
-                                            취소
-                                        </div>
-                                    </div>
-                                </Modal>
+                                <HospitalModal 
+                                    isOpen={openModal !== null} 
+                                    hospital={selectedHospital} 
+                                    onClose={closeModal} 
+                                />
                             )}
 
                         </StyledMapContainer>
@@ -339,57 +294,13 @@ function MapPage() {
                         ))}
                         </HospitalBoxes>
 
-                        {/* 선택된 병원에 대해 모달 표시 */}
                         {openModal !== null && selectedHospital && (
-                        <Modal isOpen={openModal !== null} onClose={closeModal}>
-                            <div style={{ marginTop: "40rem" }}>
-                            <a 
-                                            href={`tel:${selectedHospital.tel}`} 
-                                            style={{
-                                                display: 'block',
-                                                textDecoration: 'none',
-                                            }}
-                                        >
-                                            <div 
-                                                style={{ 
-                                                    width: '20rem', 
-                                                    height: '4rem', 
-                                                    background: '#474747', 
-                                                    borderRadius: '10px', 
-                                                    color: '#6985FF', 
-                                                    fontSize: '23px', 
-                                                    display: 'flex',             
-                                                    justifyContent: 'center',    
-                                                    alignItems: 'center',        
-                                                    textAlign: 'center',
-                                                    marginBottom: '1rem',
-                                                }}
-                                            >
-                                                전화 {selectedHospital.phone}
-                                            </div>
-                                        </a>
-                                        
-                                        <div 
-                                            style={{ 
-                                                width: '20rem', 
-                                                height: '4rem', 
-                                                background: '#474747', 
-                                                borderRadius: '10px', 
-                                                color: '#FF5B59', 
-                                                fontSize: '23px', 
-                                                fontWeight: 'bold',
-                                                display: 'flex',             
-                                                justifyContent: 'center',    
-                                                alignItems: 'center',        
-                                                textAlign: 'center'          
-                                            }} 
-                                            onClick={closeModal}
-                                        >
-                                            취소
-                                        </div>
-                                    </div>
-                                </Modal>
-                            )}
+                            <HospitalModal 
+                                isOpen={openModal !== null} 
+                                hospital={selectedHospital} 
+                                onClose={closeModal} 
+                            />
+                        )}
                     </Body>
                 </BodyWrapper>
                 <Footer>
