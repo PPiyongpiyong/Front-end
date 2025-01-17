@@ -151,6 +151,7 @@ const HomepageMessage = styled.div`
   margin-bottom: 20px;
   overflow-y: scroll;
   overflow-x: hidden;
+  text-align: left;
 
   &::-webkit-scrollbar {
     width: 0;
