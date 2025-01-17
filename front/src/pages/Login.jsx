@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from "../assets/logo.svg";
-import kakaoButtonImage from "../assets/login/kakao_login_button.svg";
 import { KAKAO_AUTH_URL } from "../secret/OAuth.js";  
 
 function Login() {
@@ -127,6 +126,7 @@ const InputWrapper = styled.div`
     border-radius: 5px;
     border: none;
     border-bottom: 1px solid #ddd;
+    background-color: transparent;
   }
   input:focus {outline: none;} 
   

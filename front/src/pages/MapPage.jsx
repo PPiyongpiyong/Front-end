@@ -203,7 +203,7 @@ function MapPage() {
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <Container>
+            <MapContainer>
                 <BodyWrapper>
                     <Header>
                         <img className="logo" src={logo} alt="logo" />
@@ -313,10 +313,15 @@ function MapPage() {
                     <StyledIcon src={chat_icon} alt="chat_icon" style={{ marginLeft: "3.7rem" }} onClick={goChat} />
                     <StyledIcon src={my_icon} alt="my_icon" style={{ marginLeft: "8rem", marginTop: "-3.5rem" }} onClick={goMy} />
                 </Footer>
-            </Container>
+            </MapContainer>
         </motion.div>
     );
 };
+
+const MapContainer = styled(Container)`
+    background: white !important; 
+`;
+
 
 const Header = styled.header`
     .logo {

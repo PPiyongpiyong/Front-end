@@ -10,14 +10,13 @@ const Redirection = () => {
       console.log(code);
 
       if (code) {
-        axios.post(`/auth/kakao/callback`, { code }) // POST 요청에 code 포함
+        axios.post(`/auth/kakao/callback?code=${code}`) // POST 요청에 code 포함
           .then((response) => {
             console.log(response.data);
             
-            // 예: 응답에서 토큰을 받아 localStorage에 저장
-            // localStorage.setItem('access_token', response.data.access_token);
+            // localStorage.setItem('token', response.data.accessToken);
 
-            navigate('/Map'); // 인증s 후 리다이렉트
+            navigate('/Map'); // 인증 후 리다이렉트
           })
           .catch((error) => {
             console.error('Error during authentication:', error);
