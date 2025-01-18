@@ -33,7 +33,7 @@ function MapPage() {
                 const x=localStorage.getItem("lng");
                 const token = 'eyJ0eXBlIjoicmVmcmVzaCIsImFsZyI6IkhTMjU2In0.eyJzdWIiOiIxIiwicm9sZXMiOltdLCJpYXQiOjE3MzY2NDQ4ODMsImV4cCI6MTczNzI0OTY4M30.jngj_llUSCuD0ee4a1UuvkWfLSS-KWMkyPOXyr-_eEQ';
 
-                const response = await axios.get(`/api/v1/map/hospital`, {
+                const response = await axios.get(`/api/api/v1/map/hospital`, {
                     headers: {
                       Authorization: `Bearer ${token}`,
                     },
@@ -395,9 +395,9 @@ const MyAddress = styled.div`
     }
     .content {
         text-align: left;
-        margin-top: -0.7rem;
-        margin-left: 1rem;
-        font-size: 14px;
+        margin-top: -0.4rem;
+        margin-left: 1.2rem;
+        font-size: 16px;
     }
 `;
 
@@ -427,7 +427,7 @@ const HospitalBox = styled.div`
 
   .hospital_address {
     text-align: left;
-    font-size: 14px;
+    font-size: 15px;
     margin-top: -0.7rem;
     margin-left: 1rem;
   }

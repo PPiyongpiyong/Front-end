@@ -4,6 +4,7 @@ import InputText from "../components/Chat/InputText";
 import Message from "../components/Chat/Message";
 import { Container, BodyWrapper, Body } from "../styles/Global";
 import { motion } from "framer-motion";
+import { CallGPT } from "./CallChatBot";
 import { useNavigate } from "react-router-dom";
 import back from "../assets/chat/back.svg";
 import { RiSendPlaneFill } from "react-icons/ri";

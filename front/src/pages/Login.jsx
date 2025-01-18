@@ -11,10 +11,11 @@ function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate(); // 로그인 후 페이지 이동을 위한 navigate
+    const Sign = () => navigate("/Signup");
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post(`/auth/signin`, {
+            const response = await axios.post(`/api/auth/signin`, {
                 email: username,
                 password: password,
             });
@@ -62,6 +63,7 @@ function Login() {
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                         </InputWrapper>
+                        <Signup onClick={Sign}>회원가입</Signup>
                         <Button onClick={handleLogin}>로그인</Button>
                         <KakaoButton onClick={kakaoLogin}>
                             카카오 로그인
@@ -141,6 +143,18 @@ const InputWrapper = styled.div`
   }
 `;
 
+const Signup = styled.div`
+    margin-top: 1rem;
+    font-size: 14px;
+    color: #535252;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+`;
+
 const Button = styled.button`
   background-color: #ff7775;
   color: #3B1C1C;
@@ -152,7 +166,7 @@ const Button = styled.button`
   font-size: 19px;
   border-radius: 13px;
   margin-bottom: 0.3rem;
-  margin-top: 5rem;
+  margin-top: 4rem;
   font-weight: bold;
   cursor: pointer;
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
