@@ -10,6 +10,7 @@ const Message = ({
   timestamp,
 }) => {
     console.log($role);
+    console.log(content);
   return (
     <MessageComponent className={className} $role={$role}>
       <MessageProfileComponent $role={$role}>
@@ -18,9 +19,21 @@ const Message = ({
       </MessageProfileComponent>
       <MessageContent>
         {isInputting || isLoading ? (
-          <span>...</span> // 임시 로딩 텍스트, 필요 시 컴포넌트로 변경 가능
+          <span>...</span>
         ) : (
-          <span>{content}</span>
+          <span>
+            {content
+            .replace(/\\n/g, "\n")
+            .split("\n")
+            .map((line, index) => (
+              <span key={index}>
+                  {line}
+                  <br />
+                  <br />
+              </span>
+            ))
+            }
+          </span>
         )}
       </MessageContent>
     </MessageComponent>

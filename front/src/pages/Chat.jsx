@@ -4,7 +4,6 @@ import InputText from "../components/Chat/InputText";
 import Message from "../components/Chat/Message";
 import { Container, BodyWrapper, Body } from "../styles/Global";
 import { motion } from "framer-motion";
-import { CallGPT } from "./CallChatBot";
 import { useNavigate } from "react-router-dom";
 import back from "../assets/chat/back.svg";
 import { RiSendPlaneFill } from "react-icons/ri";
@@ -12,13 +11,12 @@ import { HiSpeakerWave } from "react-icons/hi2";
 import { HiSpeakerXMark } from "react-icons/hi2";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
+// AI 챗봇
+import { CallGPT } from "../AIChat/gpt";
+
 const Chat = () => {
   const navigate = useNavigate();
   const backBtn = () => navigate("/");
-
-  const [input, setInput] = useState(""); // 입력된 텍스트 값
-  const [messages, setMessages] = useState([]); // 메시지 목록
-  const messageEndRef = useRef(null); // 스크롤 조정
 
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
@@ -32,6 +30,11 @@ const Chat = () => {
       SpeechRecognition.startListening({ language: "ko-KR", continuous: true });
     }
   }, [listening, transcript, resetTranscript]);
+
+  const [input, setInput] = useState(""); // 입력된 텍스트 값
+  const [messages, setMessages] = useState([]); // 메시지 목록
+  const [isLoading, setLoading] = useState(false); // 로딩 상태
+  const messageEndRef = useRef(null); // 스크롤 조정
 
   // 메시지 스크롤 조정 함수
   const scrollBottom = () => {
@@ -47,35 +50,48 @@ const Chat = () => {
     setInput(value);
   }, []);
 
+  const [streamingContent, setStreamingContent] = useState("");
+
   // 메시지 추가 및 전송 처리
   const handleSendMessage = async () => {
     if (!input.trim()) {
       alert("메시지를 입력하세요!");
       return;
     }
-
-    // 사용자 메시지 추가
+  
     const userMessage = {
       role: "user",
       content: input.trim(),
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
-
-    // 메시지 추가
+  
     setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setInput("");
+    scrollBottom();
+  
+    try {
+      setLoading(true);
+      const response = await CallGPT({ prompt: input.trim() });
+      const botMessage = {
+        role: "assistant",
+        content: `${response.title}\n\n${response.emergency_detail}`,
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      };
+      setMessages((prevMessages) => [...prevMessages, botMessage]);
 
-    setInput(""); // 입력값 초기화
-    scrollBottom(); // 대화창 하단으로 스크롤 이동
-
-    // AI 응답 생성 (임시)
-    const botMessage = {
-      role: "assistant",
-      content: `이것은 AI의 임시 응답입니다: "${userMessage.content}"에 대한 답변입니다.`,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    };
-
-    // AI 응답 추가
-    setMessages((prevMessages) => [...prevMessages, botMessage]);
+    } catch (error) {
+      console.error("AI 응답 에러:", error);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          role: "assistant",
+          content: "죄송합니다. 응답을 가져오는 데 문제가 발생했습니다.",
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -124,7 +140,7 @@ const Chat = () => {
                     }
                   }}
                 />
-                <button className="send" onClick={handleSendMessage}>
+                <button className="send" onClick={handleSendMessage} disabled={isLoading}>
                   <RiSendPlaneFill style={{ color: "white" }} size={16} />
                 </button>
               </MessageInput>
@@ -211,8 +227,7 @@ const MessageInput = styled.div`
     justify-content: center;
     align-items: center;
     box-shadow: 0px 0px 5px 0px rgba(69,66,66,0.75);
-    
-}
+  }
 `;
 
 export default Chat;

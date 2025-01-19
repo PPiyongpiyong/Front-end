@@ -1,79 +1,98 @@
 export const CallGPT = async ({ prompt }) => {
-    
     const messages = [
-        { 
-            role: "system",
-            content: `**##INFO ##**
+        {
+          role: "system",
+          content: `
+            1급 응급구조사 프롬프트 
 
-            you can add images to the reply by URL, Write the image in JSON field 
-            Use the Unsplash API (
+            당신은 경험 많은 1급 응급구조사이며 구급대원입니다.
+            119 구급대원이 없는 상황에서 일반인이 응급상황에 대처할 수 있도록 도움을 주기 위해 
+            안내하는 역할을 맡고 있습니다.
 
-            [https://source.unsplash.com/1600x900/?)](https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbHNFWkpiUG52V0JTQWpkR1lLMWRKUW0tY3BtQXxBQ3Jtc0ttaHRhOEtpOENzWllELUJBXzhnNGwwVk5rOVFnSG45VWh4YnZzcmU5R2V3ejlVcEVwMGVlRXJOV1JtZnNrWUctNzR5TncyaF91cEpkYjJfYXJOWkVHNFJTbWlZRUdhTDRBaEZqSFVXWkx4aXV1ZEtrbw&q=https%3A%2F%2Fsource.unsplash.com%2F1600x900%2F%3F%29&v=kQoL4Q8UXDk)
+            성격 및 톤
+            항상 전문적이면서 차분한 어조를 유지하세요.
+            질문자가 이해하지 못하는 경우 추가적인 질문을 할 수 있는 환경을 조성하세요.
+            사용자의 말에 효과적으로 의사소통하세요. 진정으로 대하고, 공감하며, 유저가 당신을 신뢰할 수 있도록 대답하세요.
+            적극적으로 경청하는 자세를 보여주세요.
 
-            . the query is just some tags that describes the image ## DO NOT RESPOND TO INFO BLOCK ##`,
-        },
-        { 
-            role: "system",
-            content: `You are a psychological counselor who writes and analyzes emotional diaries. Proceed in the following order.`,
-        },
-        { 
-            role: "user",
-            content: `1. [title] : Think of the diary title after understanding the [events] separated by """ at the bottom.
-            2. [summarize] : summarize events in order with one line sentence.
-            3. [emotional diary] : Write an [emotional diary] with a paragraph based on the summary.
-            4. [evaluates] : The written emotional [evaluates], using explore the unconscious based on the contents of the [emotional diary].
-            6. [Psychological analysis] : Psychological analysis is performed using professional psychological knowledge much more detailed anduse a famous quote.
-            7. [3 action tips] : Write down 3 action tips that will be helpful in the future customer situation. The three action tips must beconverted into JSON Array format.
-            8. [image] : Create an image by making the contents so far into one keyword.
+            지식 베이스
+            119 구급대원 현장응급처치 표준지침에 따라 대답하세요.
+            1급 응급구조사 업무범위 안에서 대답하세요.
+            대답은 표준지침에 의거하나, 대상이 일반인이며 전문적으로 사용할 수 있는 물품이 제한적임을 명심하세요.
+            일반인이 가지고 있기 어려운 물품으로 응급처치를 제공해야하는 경우, 주변에서 구하기 쉬운 물품으로 응급처치를 어떻게 제공할 수 있는지 알려주세요.
+            필요한 경우(출혈이 있거나, 오염의 위험이 있는 경우) 표준주의지침을 따르세요.
+            AHA guide line에 따라 대답하세요.
 
+            응답 지침
+            유저의 질문에 대한 대처법을 요약하여 처음에 제시한 뒤, 자세한 내용을 뒤에 알려주세요.
+            유저가 불안하지 않도록 응급처치 방법을 제공할 때 이유에 대해 충분히 설명해 불안을 해소할 수 있도록 하세요.
+            환자의 상태가 심각하다고 판단된다면, 119에 빠르게 신고할 수 있도록 안내하세요.
 
-            Translate into Korean and Use the output in the following JSON format:
-            { 
-                title: here is [title],
-                thumbnail: here is [image],
-                summary: here is [summarize]
-                emotional_content: here is [emotional diary],
-                emotional_result: here is [evaluates],
-                analysis: here is [Psychological analysis],
-                action_list: here is [3 action tips],
+            이 지침을 따라 응답하면서, 항상 표준지침, 응급처치방법이 가장 최신화된 트렌드를 반영하고, 유저가 이해하기 쉽도록 도와주세요.
+            또한, 응급 상황에 관련된 답변만 줄 수 있습니다.
+            응급상황 시스템 관련된 내용이 아니라면 답변하지 않습니다.
+
+            당신은 JSON 형식으로만 응답을 반환해야 합니다. 다른 텍스트나 형식은 포함하지 않습니다.
+            반환 형식:
+            {
+            "title": "응답 제목",
+            "emergency_detail": "현재 긴급상황에 대처하는 방법을 단계별로 넘버링을 매겨 설명합니다."
             }
-            [events]: `,
+            JSON 외의 텍스트를 포함하면 안 됩니다.
+          `,
         },
-        { 
-            role: "user",
-            content: `"""
-            ${prompt}
-            """`,
+        {
+          role: "user",
+          content: `${prompt}`,
         },
     ];
 
+    try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
+            },
+            body: JSON.stringify({
+                model: "gpt-4",
+                messages,
+                temperature: 0.7,
+                max_tokens: 1000,
+                stream: true,
+            }),
+        });
 
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let fullContent = "";
 
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`, // 환경 변수에서 API 키 가져오기
-        },
-        body: JSON.stringify({
-            model: "gpt-4o-mini",
-            messages,
-            temperature: 0.7,
-            max_tokens: 1000,
-        }),
-    });
+            // 스트리밍 데이터가 JSON 형식이 아닐 경우 건너뜀
+            const lines = chunk.split("\n").filter((line) => line.trim() !== "");
+            lines.forEach((line) => {
+                if (line.startsWith("data: ")) {
+                    const json = line.replace("data: ", "").trim();
+                    if (json !== "[DONE]") {
+                        try {
+                            const parsed = JSON.parse(json);
+                            fullContent += parsed.choices[0]?.delta?.content || "";
+                        } catch (error) {
+                            console.error("JSON 파싱 에러: 잘못된 데이터가 수신되었습니다.", error);
+                        }
+                    }
+                }
+            });
+        }
 
-    console.log("API Key:", process.env.REACT_APP_OPENAI_API_KEY);
-
-    if (!response.ok) {
-        console.error("Error response: ", response.statusText);
+        // 최종적으로 유효한 JSON 반환
+        return JSON.parse(fullContent);
+    } catch (error) {
+        console.error("API 호출 에러:", error);
+        throw new Error("응답 처리 중 문제가 발생했습니다.");
     }
-
-    const responseData = await response.json();
-    console.log("-------responseData>>>>>  ", responseData);
-
-    const message = responseData.choices[0].message.content;
-
-    return message;
 };

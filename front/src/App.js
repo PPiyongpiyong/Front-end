@@ -7,7 +7,6 @@ const Loading = React.lazy(() => import('./pages/Loading'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Redirection = React.lazy(() => import('./pages/Redirection'));
 const Chat = React.lazy(() => import('./pages/Chat'));
-const AIChat = React.lazy(() => import('./pages/AIChat'));
 const Manual = React.lazy(() => import('./pages/Manual'));
 const ManualDetail = React.lazy(() => import('./pages/ManualDetail'));
 const MapPage = React.lazy(() => import('./pages/MapPage'));
@@ -25,7 +24,6 @@ function App() {
             <Route path='/auth/kakao/callback' element={<Redirection />} />
             <Route path="/Chat" element={<Chat />} />
             <Route path="/AI" element={<AI />} />
-            <Route path="/AIChat" element={<AIChat />} />
             <Route path="/Manual" element={<Manual />} />
             <Route path="/ManualDetail" element={<ManualDetail />} />
             <Route path="/Mypage" element={<Mypage />} />

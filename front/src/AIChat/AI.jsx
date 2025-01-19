@@ -1,52 +1,50 @@
-import {useState} from 'react';
-import {CallGPT} from "./gpt";
+import { useState } from "react";
+import { CallGPT } from "./gpt";
+import AIInput from "./AIInput";
 
-
-const dummyData = JSON.parse(`{
-    "title": "코딩의 시련과 성장",
-    "thumbnail": "https://source.unsplash.com/1600x900/?coding",
-    "summary": "코딩 강의를 듣고 버그로 어려움을 겪었으며, 결국 GPT를 통해 문제를 해결했다.",
-    "emotional_content": "오늘 코딩 강의를 듣고 나서, 프로젝트에서 많은 버그를 마주하게 되었다. 스택오버플로에서 해결책을 찾아보았지만, 기껏해야 문제를 더 복잡하게 만들 뿐이었다. 결국 GPT의 도움을 받아 문제를 해결했지만, 이렇게 쉽게 해결하게 되는 것이 내 개발 실력에 도움이 될지 불안한 마음이 든다. 나는 진정으로 성장하고 있는 것일까?",
-    "emotional_result": "이런 경험은 나의 불안과 자신감 부족을 드러낸다. 문제를 스스로 해결하지 못했다는 생각이 나의 능력에 대한 의구심을 키우고 있다.",
-    "analysis": "이 상황은 당신이 느끼는 불안과 자기 의심의 감정을 반영합니다. '성장하는 것은 고통을 동반한다'는 말처럼, 도전과 실패는 성장을 위한 중요한 과정입니다. 문제를 스스로 해결하지 못했다고 생각할 수 있지만, 도움을 요청하는 것도 중요한 능력입니다. 스스로의 한계를 인정하고 필요한 도움을 받는 것이 진정한 성장의 일부입니다.",
-    "action_list": [
-        "문제를 해결할 수 있을 때까지 끈기 있게 시도하기",
-        "도움을 요청하는 것을 두려워하지 않기",
-        "주기적으로 자신의 개발 과정을 돌아보고 성장 점검하기"
-    ]
-}`);
-
-
-
+const dummyData = `{
+    "title": "왼쪽 팔이 골절되었음을 확인했습니다.",
+    "emergency_detail": "1. 상황 평가: 환자의 상태를 확인하고, 주변이 안전한지 점검합니다.\\n   - 환자가 의식이 있는지 확인합니다.\\n   - 출혈 여부와 통증 정도를 평가합니다.\\n\\n2. 부상 부위 보호: 골절된 팔을 부드럽게 고정합니다.\\n   - 가능하다면, 부목이나 단단한 물체(예: 신문지, 나무 조각)를 사용하여 팔을 고정합니다.\\n   - 부목이 없는 경우, 팔을 몸에 붙이고 움직이지 않도록 합니다.\\n\\n3. 통증 관리: 통증이 심할 경우, 환자에게 편안한 자세를 취하도록 유도합니다.\\n   - 얼음팩이나 찬 물수건을 사용하여 부상 부위를 차갑게 해 통증을 줄일 수 있습니다.\\n\\n4. 의료 도움 요청: 119에 신속하게 신고하여 전문적인 치료를 받을 수 있도록 합니다.\\n   - 환자의 상태를 간단하게 설명하고, 위치를 알려줍니다.\\n   - 구급대원이 도착할 때까지 환자의 상태를 주의 깊게 관찰합니다.\\n\\n5. 추가적인 주의사항: 환자가 자가진단하지 않도록 주의하고, 움직이지 않도록 합니다.\\n   - 가능하면 환자가 편안하게 쉴 수 있도록 환경을 조성합니다."
+}`;
 
 function AI() {
-    const [data, setData] = useState(dummyData);
+    const [data, setData] = useState(JSON.parse(dummyData));
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleClickAPICall = async()=> {
-        try{
+    const handleClickAPICall = async (userInput) => {
+        try {
             setIsLoading(true);
-            const message = await CallGPT({
-                prompt:`
-                코딩 강의를 들었다. 프로젝트에 버그가 많이 나왔음. 스택오버플로에서 검색했지만 해결 안되었어.
-                역시 gpt를 통해서 해결했다. 근데 이렇게 해결하는게 개발실력에 도움 될까..?
-                `,
-            });
-            setData(JSON.parse(message));
+            const result = await CallGPT({ prompt: userInput });
+            setData(result);
         } catch (error) {
-
+            console.error("데이터 로드 에러: ", error);
         } finally {
             setIsLoading(false);
         }
     };
 
-    console.log(">>>>>>>>data  ", data);
+    const handleSubmit = (userInput) => {
+        console.log("입력 받은 값: ", userInput);
+        handleClickAPICall(userInput);
+    };
 
     return (
         <>
-            <button onClick={handleClickAPICall}>GPT</button>
-            <div>data : {data?.title}</div>
-            {/* <div>isLoading: {isLoading ? "loading..." : "fin"}</div>   */}
+            <AIInput isLoading={isLoading} onSubmit={handleSubmit} />
+            <div>
+                <h2>{data.title}</h2>
+                <p>
+                    {data.emergency_detail
+                        .replace(/\\n/g, "\n") // '\\n'을 실제 개행 문자 '\n'으로 변환
+                        .split("\n") // '\n'을 기준으로 줄 나누기
+                        .map((line, index) => (
+                            <span key={index}>
+                                {line}
+                                <br />
+                            </span>
+                        ))}
+                </p>
+            </div>
         </>
     );
 }
